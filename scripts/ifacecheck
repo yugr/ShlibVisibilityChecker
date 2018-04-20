@@ -1,0 +1,356 @@
+#!/bin/sh
+
+# The MIT License (MIT)
+# 
+# Copyright (c) 2018 Yury Gribov
+# 
+# Use of this source code is governed by The MIT License (MIT)
+# that can be found in the LICENSE.txt file.
+
+# TODO: rewrite in Python
+
+set -eu
+
+read_header_api=$(dirname $0)/../bin/read_header_api
+
+print_help_and_exit() {
+  cat <<EOF
+Usage: $(basename $0) [OPT]... PKG...
+Analyzes difference between public and binary interfaces in Debian packages.
+
+Options:
+  -k, --keep      Do not remove temp files after script finishes.
+  -o DIR          Store temp files in directory DIR, rather than /tmp
+                  (enables --keep).
+  -x              Enable shell tracing (for debug).
+  -h, --help      Print this help and exit.
+  -v, --verbose   Print diagnostic info (can use more than once for more details).
+EOF
+  exit 1
+
+}
+
+ARGS=$(getopt -o 'o:hkxv' --long 'help,keep,verbose' -n $(basename $0) -- "$@")
+eval set -- "$ARGS"
+
+KEEP=
+OUT=
+V=0
+while true; do
+  case "$1" in
+    -o)
+      OUT="$2"
+      KEEP=1
+      shift 2
+      ;;
+    -k | --keep)
+      KEEP=1
+      shift
+      ;;
+    -x)
+      set -x
+      shift
+      ;;
+    -h | --help)
+      print_help_and_exit
+      ;;
+    -v | --verbose)
+      V=$((V + 1))
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      error "unknown option: $1"
+      ;;
+    *)
+      error 'internal error'
+      ;;
+  esac
+done
+
+if [ $# -eq 0 ]; then
+  print_help_and_exit
+fi
+
+find_shlibs() {
+  for f in $(find "$1" -name \*.so\* -a -type f); do
+    if file -b $f | grep -q '^ELF.*shared object'; then
+      echo $f
+    fi
+  done
+}
+
+find_headers() {
+  for f in $(find "$1" -name \*.h -o -name \*.hpp); do
+    if test -f $f; then
+      echo $f
+    fi
+  done
+}
+
+get_pkg_attribute() {
+  # Parse e.g. "Depends: libc6-dev | libc-dev, libacl1 (= 2.2.52-3), libattr1-dev (>= 1:2.4.46-8)"
+  case $2 in
+  Binary)
+    apt-cache -q showsrc "$1" | grep "^$2:" | tail -n1
+    ;;
+  *)
+    apt-cache -q show "$1" | grep "^$2:"
+    ;;
+  esac \
+    | sed "s/^$2: *//" \
+    | sed 's/([^)]*)//g; s/ *|[^,]*//g; s/^ *//; s/ *$//' \
+    | sed 's/ *, */\n/g' \
+    | sort -u
+}
+
+install_pkg() {
+  local p="$1"
+  local dst="$2"
+
+  if is_virtual_pkg "$p"; then
+    p="$(apt_provides "$p" | head -1)"
+  fi
+
+  local tmp="$(mktemp --suffix=.install_pkg -d)"
+  if ! (cd "$tmp" && apt-get -qq download "$p"); then
+    return 1
+  fi
+
+  for deb in $tmp/*.deb; do
+    (cd $tmp && ar x $deb > /dev/null)
+    tar -C $dst -xf $tmp/data.tar.*
+  done
+
+  rm -rf $tmp
+}
+
+is_bad_pkg() {
+  echo "$1" | grep -q 'libreoffice'
+}
+
+is_cpp_header() {
+   grep -q '^[ 	]*class\>\|private:\|public:\|\<operator\>.*(\|\<template *<' $1  # FIXME: ugly...
+}
+
+# From https://askubuntu.com/a/366240
+apt_provides() {
+  apt-cache show $(apt-cache search "$1" | awk '{ print $1 }' | tr '\n' ' ') \
+    | sed -n '/^Package: \(.*\)$/ {s//\1/; h}; /^Provides:.*'"$1"'/ {x; p}'
+}
+
+is_virtual_pkg() {
+  (apt-cache show --quiet=0 "$1" 2>&1 >/dev/null || true) | grep -q 'purely virtual'
+}
+
+get_header_ifaces() {
+  local pkg="$1"
+  local wd="$2"
+
+  # Download headers
+  mkdir -p $wd
+  if ! install_pkg $pkg $wd 2>>$wd/download.log; then
+    echo >&2 "Failed to download header package $pkg, may report false positives"
+    return 0
+  fi
+
+  local incroot=$wd/usr/include
+  if test $(find_headers $incroot | wc -l) -eq 0; then
+    echo >&2 "Failed to locate any headers for package $pkg, skipping..."
+    return 0
+  fi
+  local hdrs="$(find_headers $incroot)"
+
+  # Collect pkgconfig files
+  local pkgconfig=$wd/pkgconfig.txt
+  find $wd -path '*/pkgconfig/*.pc' > $pkgconfig
+
+  # Install dependent headers
+  # TODO: handle recursive deps (maybe share them across all packages to save time)
+  for p in $(get_pkg_attribute $pkg Depends | grep -- '-dev$'); do
+    if test $V -gt 0; then
+      echo >&2 "Installing dependency $p"
+    fi
+    install_pkg $p $wd
+  done
+
+  # Collect CFLAGS from pkgconfigs (now that we have all dependencies)
+  local pkgconfig_cflags=$wd/pkgconfigs_cflags.txt
+  for pc in $(cat $pkgconfig); do
+    local stem="$(basename $pc | sed 's/\.[^.]*$//')"
+    PKG_CONFIG_PATH=$(dirname $pc) pkg-config --print-errors --cflags --define-variable=prefix=$wd/usr --define-variable=includedir=$wd/usr/include $stem
+  done | sort -u > $pkgconfig_cflags
+
+  case $(wc -l < $pkgconfig_cflags) in
+  0)
+    PKGCONFIG_CFLAGS=
+    ;;
+  1)
+    PKGCONFIG_CFLAGS="$(cat $pkgconfig_cflags)"
+    ;;
+  *)
+    # TODO: we can be more aggressive if there are several incompabile pkgconfigs (e.g. concat all?)
+    echo >&2 "Too many pkgconfig files, ignoring..."
+    PKGCONFIG_CFLAGS=
+    ;;
+  esac
+
+  # Extract public interfaces
+  for h in $hdrs; do
+    if ! test -f $h; then
+      echo >&2 "Header $h in package $pkg is missing, may report false positives..."
+      continue
+    fi
+
+    # TODO: determine clang's header path automatically
+    CFLAGS="$PKGCONFIG_CFLAGS -I$incroot -I$incroot/x86_64-linux-gnu -I/usr/include -I/usr/include/x86_64-linux-gnu -I/usr/lib/llvm-5.0/lib/clang/5.0.0/include"
+    if is_cpp_header $h; then  # FIXME: ugly...
+      CFLAGS="$CFLAGS -x c++"
+    fi
+
+    if ! $read_header_api --root $incroot --cflags "$CFLAGS" $h 2> $wd/err.log; then
+      if grep -rq "# *include.*$(basename $h)" $incroot; then
+        # This is likely a helper header, not included directly
+        continue
+      fi
+
+      cat >&2 $wd/err.log
+      echo >&2 "Failed to parse $h..."
+      return 1
+    fi
+  done
+}
+
+read_binary_api() {
+  # Note that we skip symbols which use custom versions (marked with single @)
+  # as these most probly come from old unsupported interfaces.
+  # TODO: implement this in a saner way
+  readelf -sW --dyn-syms $1 \
+    | grep '^ *[0-9]\+:' \
+    | grep -v '\<UND\>\|\<ABS\>' \
+    | awk 'FS="[ \t]+" {print $9}' \
+    | sed 's/@@.*//' \
+    | grep -v '^$' \
+    | grep -v '@' \
+    | sort -u
+}
+
+analyze_pkg() {
+  local pkg="$1"
+  local wd="$2"
+
+  mkdir -p $wd
+
+  # Packages with headers
+  local dev_pkgs="$(get_pkg_attribute "$pkg" Binary | grep -- '-dev$')"
+  if test $(echo "$dev_pkgs" | wc -l) = 0; then
+    echo "Development packages for $pkg not found, skipping..."
+    return 1
+  elif test $V -gt 0; then
+    echo >&2 "$pkg headers: $(echo "$dev_pkgs" | tr '\n' ' ')"
+  fi
+
+  # Collect header interfaces
+  for p in $dev_pkgs; do
+    if ! get_header_ifaces $p $wd/dev/$p; then
+      return 1
+    fi
+  done > $wd/public_api.txt.1
+  sort -u $wd/public_api.txt.1 > $wd/public_api.txt
+
+  # Packages with shlibs
+  local bin_pkgs="$(get_pkg_attribute "$pkg" Binary | grep -v -- '-dev$')"
+  if test $V -gt 0; then
+    echo >&2 "$pkg shlibs: $(echo "$bin_pkgs" | tr '\n' ' ')"
+  fi
+
+  # Collect binary interfaces
+  local bindir=$wd/bin
+  mkdir -p $bindir
+  for p in $bin_pkgs; do
+    if ! install_pkg $p $bindir 2>>$wd/download.log; then
+      echo "Failed to download binary package $p, may cause false negatives"
+    fi
+  done
+  if test $(find_shlibs $bindir | wc -l) -eq 0; then
+    echo "Failed to locate any shared libs, skipping $pkg..."
+    return 1
+  fi
+  for l in $(find_shlibs $bindir); do
+    read_binary_api $l
+  done | sort -u > $wd/exported_api.txt
+
+  # Find extraneous symbols
+  comm -13 $wd/public_api.txt $wd/exported_api.txt > $wd/exported_only.txt
+  if ! test -s $wd/exported_only.txt; then
+    echo "All binary symbols are present in public interface of $pkg."
+  else
+    echo "Binary symbols not in public interface of $pkg:"
+    cat $wd/exported_only.txt | sed 's/^/  /'
+    local num_bad_binary="$(wc -l < $wd/exported_only.txt)"
+    local num_binary="$(wc -l < $wd/exported_api.txt)"
+    if test $num_binary -gt 0; then
+      rate=$((num_bad_binary * 100 / num_binary))
+      rate=" ($rate%)"
+    else
+      rate=
+    fi
+    echo "For a total of $num_bad_binary symbols$rate."
+  fi
+
+#  # Find missing APIs
+#  comm -23 $wd/public_api.txt $wd/exported_api.txt > $wd/public_only.txt
+#  if test -s $wd/public_only.txt; then
+#    echo "APIs not in binary interface:"
+#    cat $wd/public_only.txt | sed 's/^/  /'
+#  else
+#    echo "All APIs are present in shlibs"
+#  fi
+
+  return 0
+}
+
+if test -z "$OUT"; then
+  OUT=$(mktemp --suffix=.$(basename $0) -d)
+else
+  OUT=$(readlink -f $OUT)
+fi
+mkdir -p $OUT
+rm -rf $OUT/*
+
+if test -z "$KEEP"; then
+  trap "rm -rf $OUT" EXIT
+else
+  echo "Files will be stored in $OUT"
+fi
+
+total=0
+fails=0
+failed_packages=
+for p in "$@"; do
+  TMP=$OUT/tmp
+  if ! apt-cache -q showsrc "$p" > $TMP || ! test -s $TMP; then
+    echo >&2 "Failed to obtain source package for $p, skipping..."
+    continue
+  fi
+
+  src="$(grep '^Package:' $TMP | sed 's/^Package: //' | tail -n1)"
+  if test -f $OUT/pkgs && grep -q "^$src\$" $OUT/pkgs || is_bad_pkg $src; then
+    continue
+  fi
+  echo $src >> $OUT/pkgs
+
+  total=$((total + 1))
+  echo "Processing package $p..."
+  if ! analyze_pkg "$src" "$OUT/$src"; then
+    echo "Failed to analyze."
+    fails=$((fails + 1))
+    failed_packages="$failed_packages $src"
+  fi
+done
+
+echo "$fails packages failed (out of $total):"
+echo "$failed_packages" | tr ' ' '\n' | sed 's/^/  /'
