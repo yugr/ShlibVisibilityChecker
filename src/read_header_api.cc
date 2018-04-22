@@ -130,6 +130,16 @@ Options:\n\
   exit(0);
 }
 
+template<typename T>
+struct Freer {
+  const T &V;
+  Freer(const T &V): V(V) {}
+  ~Freer() {
+    for (auto E : V)
+      free((void *)E);
+  }
+};
+
 int main(int argc, char *argv[]) {
   const char *me = basename((char *)argv[0]);
 
@@ -168,6 +178,8 @@ int main(int argc, char *argv[]) {
   }
 
   std::vector<const char *> FlagsArray;
+  Freer<std::vector<const char *>> FlagsArrayFreer(FlagsArray);
+
   while (1) {
     size_t I = Flags.find_first_of(" \t");
     if (I < std::string::npos) {
