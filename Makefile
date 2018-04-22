@@ -11,11 +11,23 @@ LLVM_CONFIG = llvm-config-5.0
 
 CXX = g++
 
-CXXFLAGS = $(shell $(LLVM_CONFIG) --cflags)
-CXXFLAGS += -std=c++11 -Wall -Wextra -Werror
-CXXFLAGS += -g -O0
-
+CXXFLAGS = $(shell $(LLVM_CONFIG) --cflags) -std=c++11 -g -Wall -Wextra -Werror
 LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags)
+
+ifeq (,$(DEBUG))
+  CXXFLAGS += -O2
+  LDFLAGS += -Wl,-O2
+else
+  CXXFLAGS += -O0
+endif
+ifneq (,$(ASAN))
+  CXXFLAGS += -fsanitize=address
+  LDFLAGS += -fsanitize=address
+endif
+ifneq (,$(UBSAN))
+  CXXFLAGS += -fsanitize=undefined
+  LDFLAGS += -fsanitize=undefined
+endif
 
 all: bin/read_header_api
 
