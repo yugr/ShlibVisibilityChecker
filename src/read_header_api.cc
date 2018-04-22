@@ -35,14 +35,14 @@ struct InterfaceInfo {
 
 static std::string ToStr(CXString CXS) {
   const char *CStr = clang_getCString(CXS);
-  std::string Str = CStr;
+  std::string Str(CStr);
   clang_disposeString(CXS);
   return Str;
 }
 
 static std::string RealPath(const char *p) {
   char *tmp = realpath(p, 0);
-  std::string Res = tmp;
+  std::string Res(tmp);
   free(tmp);
   return Res;
 }
@@ -53,8 +53,8 @@ static std::string ParseLoc(CXSourceLocation Loc, unsigned *Line, bool Expansion
   return RealPath(ToStr(clang_getFileName(F)).c_str());
 }
 
-static bool IsUnderRoot(const std::string Filename, const std::string &Root) {
-  return 0 == strncmp(Filename.c_str(), Root.c_str(), Root.size());
+static bool IsUnderRoot(const std::string &Filename, const std::string &Root) {
+  return 0 == Filename.compare(0, Root.size(), Root);
 }
 
 static enum CXChildVisitResult collectDecls(CXCursor C, CXCursor Parent, CXClientData Data) {
