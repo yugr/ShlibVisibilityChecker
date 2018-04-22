@@ -71,11 +71,6 @@ static enum CXChildVisitResult collectDecls(CXCursor C, CXCursor Parent, CXClien
   CXSourceLocation Loc = clang_getCursorLocation(C);
   unsigned Line;
   std::string ExpFilename = ParseLoc(Loc, &Line, true);
-//  if (!IsUnderRoot(ExpFilename, Info->Root)) {
-//    if (Info->Verbose)
-//      fprintf(stderr, "Skipping declaration at %s:%u (not under %s)\n", SpellFilename.c_str(), Line, Info->Root.c_str());
-//    return CXChildVisit_Continue;
-//  }
   std::string SpellFilename = ParseLoc(Loc, &Line, false);
   if (!IsUnderRoot(SpellFilename, Info->Root)) {
     if (Info->Verbose)
@@ -130,16 +125,6 @@ Options:\n\
   exit(0);
 }
 
-template<typename T>
-struct Freer {
-  const T &V;
-  Freer(const T &V): V(V) {}
-  ~Freer() {
-    for (auto E : V)
-      free((void *)E);
-  }
-};
-
 int main(int argc, char *argv[]) {
   const char *me = basename((char *)argv[0]);
 
@@ -178,20 +163,14 @@ int main(int argc, char *argv[]) {
   }
 
   std::vector<const char *> FlagsArray;
-  Freer<std::vector<const char *>> FlagsArrayFreer(FlagsArray);
-
-  while (1) {
-    size_t I = Flags.find_first_of(" \t");
-    if (I < std::string::npos) {
-      FlagsArray.push_back(strdup(Flags.substr(0, I).c_str()));
-      I = Flags.find_first_not_of("\t", I + 1);
-      if (I == std::string::npos)
-        break;
-      Flags = Flags.substr(I);
-    } else {
-      FlagsArray.push_back(strdup(Flags.c_str()));
+  for (size_t End = 0; End < std::string::npos; ) {
+    size_t Begin = Flags.find_first_not_of(" \t", End);
+    if (Begin == std::string::npos)
       break;
-    }
+    End = Flags.find_first_of(" \t", Begin + 1);
+    if (End != std::string::npos)
+      Flags[End++] = 0;
+    FlagsArray.push_back(&Flags[Begin]);
   }
 
   if (optind >= argc) {
