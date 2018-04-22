@@ -212,7 +212,7 @@ get_header_ifaces() {
     fi
 
     if ! $read_header_api --root $incroot --cflags "$CFLAGS" $h 2> $wd/err.log; then
-      if grep -rq "# *include.*$(basename $h)" $incroot; then
+      if grep -rq '# *include.*[<"/]'"$(basename $h)" $incroot; then
         # This is likely a helper header, not included directly
         continue
       fi
