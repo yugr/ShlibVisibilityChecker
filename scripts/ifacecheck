@@ -228,7 +228,7 @@ read_binary_api() {
   # Note that we skip symbols which use custom versions (marked with single @)
   # as these most probly come from old unsupported interfaces.
   # TODO: implement this in a saner way
-  readelf -sW --dyn-syms $1 \
+  readelf -W --dyn-syms $1 \
     | grep '^ *[0-9]\+:' \
     | grep -v '\<UND\>\|\<ABS\>' \
     | awk 'FS="[ \t]+" {print $9}' \
