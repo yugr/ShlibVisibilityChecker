@@ -211,8 +211,8 @@ int main(int argc, char *argv[]) {
       fprintf(stderr, "warning: C++ is not fully supported, interface info may be incomplete\n");
 
     if (Verbose) {
+      fprintf(stderr, "APIs exported from %s:\n", Hdr.c_str());
       for (auto &Sym : Info.Syms) {
-        fprintf(stderr, "APIs exported from %s:\n", Hdr.c_str());
         fprintf(stderr, "  %s (%s)\n", Sym.MangledName.c_str(), Sym.Name.c_str());
       }
     }
