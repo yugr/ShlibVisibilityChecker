@@ -206,6 +206,7 @@ get_header_ifaces() {
     fi
 
     # TODO: determine clang's header path automatically
+    # TODO: maybe just compile in chroot instead of -I mess
     CFLAGS="$PKGCONFIG_CFLAGS -I$incroot -I$incroot/x86_64-linux-gnu -I/usr/include -I/usr/include/x86_64-linux-gnu -I/usr/lib/llvm-5.0/lib/clang/5.0.0/include"
     if is_cpp_header $h; then  # FIXME: ugly...
       CFLAGS="$CFLAGS -x c++"
