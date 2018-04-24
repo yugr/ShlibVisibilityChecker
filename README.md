@@ -72,3 +72,7 @@ Other issues:
 * TODOs are scattered all over the codebase
 * rewrite `ifacecheck` in Python/Perl (?)
 * would be nice to check dependent packages to see if any uses invalid symbols
+
+# Tropheys
+
+* [Hide unused symbols in libbz2](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=896750)
