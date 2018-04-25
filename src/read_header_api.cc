@@ -15,6 +15,7 @@
 
 #include <libgen.h>
 #include <getopt.h>
+#include <unistd.h>
 
 #include <string>
 #include <vector>
@@ -152,6 +153,10 @@ int main(int argc, char *argv[]) {
       Flags = optarg;
       break;
     case 'r':
+      if (access (optarg, F_OK) == -1) {
+        fprintf(stderr, "Directory %s does not exist\n", optarg);
+        exit(1);
+      }
       Root = RealPath(optarg);
       break;
     case 'h':
