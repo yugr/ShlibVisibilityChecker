@@ -20,9 +20,9 @@ with visibility is in modern distros).
 
 First install dependencies: llvm-5.0 and clang-5.0 and build as usual via `make clean all`.
 
-To verify package, run
+It's recommended to use a high-level script `debiancheck` which verifies complete Debian packages. To verify a package, run
 ```
-$ scripts/ifacecheck libacl1
+$ scripts/debiancheck libacl1
 Binary symbols not in public interface of acl:
   __acl_extended_file
   __acl_from_xattr
@@ -44,6 +44,13 @@ For a total of 14 (25%).
 A list of packages for analysis can be obtained from [Debian rating](https://popcon.debian.org/by_vote):
 ```
 $ curl https://popcon.debian.org/by_vote 2>/dev/null | awk '/^[0-9]/{print $2}' | grep '^lib'
+```
+
+You can also collect interfaces from headers and shlibs manually and compare them:
+```
+$ bin/read_header_api --cflags="-I/usr/include -I$AUDIT_INSTALL/include -I/usr/lib/llvm-5.0/lib/clang/5.0.0/include" $AUDIT_INSTALL/include/*.h > public_api.txt
+$ scripts/read_binary_api $AUDIT_INSTALL/lib/*.so* > exported_api.txt
+$ comm -13 public_api.txt exported_api.txt
 ```
 
 # Issues and limitations
@@ -70,7 +77,7 @@ Other issues:
 * need to install transitive dependencies for development packages
 * need to install dependencies which are mentioned in pkgconfig files (even if they are not mentioned by `apt-cache`)
 * TODOs are scattered all over the codebase
-* rewrite `ifacecheck` in Python/Perl (?)
+* rewrite `debiancheck` in Python/Perl (?)
 * would be nice to check dependent packages to see if any uses invalid symbols
 
 # Tropheys

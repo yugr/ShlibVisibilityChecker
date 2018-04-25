@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Reads binary APIs from a list of shlibs.
+# TODO: implement this in a saner way
+
+set -eu
+
+# Note that we skip symbols which use custom versions (marked with single @)
+# as these most probly come from old unsupported interfaces.
+for l in "$@"; do
+  readelf -W --dyn-syms $l \
+    | grep '^ *[0-9]\+:' \
+    | grep -v '\<UND\>\|\<ABS\>' \
+    | awk 'FS="[ \t]+" {print $9}' \
+    | sed 's/@@.*//' \
+    | grep -v '^$' \
+    | grep -v '@' \
+    | sort -u
+done | sort -u

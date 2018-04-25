@@ -32,7 +32,7 @@ endif
 all: bin/read_header_api
 
 check:
-	scripts/ifacecheck libacl1
+	scripts/debiancheck libacl1
 
 bin/read_header_api: bin/read_header_api.o
 	$(CXX) $(LDFLAGS) -o $@ $^ -lclang

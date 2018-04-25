@@ -18,7 +18,7 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
+#include <set>
 
 struct Symbol {
   std::string Name, MangledName;
@@ -204,7 +204,16 @@ int main(int argc, char *argv[]) {
     if (AnyError)
       return 1;
 
-    InterfaceInfo Info(Verbose, Root);
+    std::string HdrRoot = Root;
+    if (HdrRoot.empty()) {
+      size_t J = Hdr.find("/include/");
+      if (J == std::string::npos)
+        fprintf(stderr, "Failed to determine include root for %s\n", Hdr.c_str());
+      else
+        HdrRoot = Hdr.substr(0, J) + "/include";
+    }
+
+    InterfaceInfo Info(Verbose, HdrRoot);
     clang_visitChildren(clang_getTranslationUnitCursor(Unit), collectDecls, (CXClientData)&Info);
 
     if (Info.HasClasses)
@@ -217,8 +226,12 @@ int main(int argc, char *argv[]) {
       }
     }
 
+    std::set<std::string> Names;
     for (auto &Sym : Info.Syms)
-      printf("%s\n", Sym.MangledName.c_str());
+      Names.insert(Sym.MangledName);
+
+    for (auto &Name : Names)
+      printf("%s\n", Name.c_str());
 
     clang_disposeTranslationUnit(Unit);
     clang_disposeIndex(Idx);

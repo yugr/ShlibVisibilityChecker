@@ -182,7 +182,8 @@ get_header_ifaces() {
   for pc in $(cat $pkgconfig); do
     local stem="$(basename $pc | sed 's/\.[^.]*$//')"
     PKG_CONFIG_PATH=$(dirname $pc) pkg-config --print-errors --cflags --define-variable=prefix=$wd/usr --define-variable=includedir=$wd/usr/include $stem
-  done | sort -u > $pkgconfig_cflags
+  done > $pkgconfig_cflags
+  sort -uo $pkgconfig_cflags $pkgconfig_cflags
 
   case $(wc -l < $pkgconfig_cflags) in
   0)
@@ -225,20 +226,6 @@ get_header_ifaces() {
   done
 }
 
-read_binary_api() {
-  # Note that we skip symbols which use custom versions (marked with single @)
-  # as these most probly come from old unsupported interfaces.
-  # TODO: implement this in a saner way
-  readelf -W --dyn-syms $1 \
-    | grep '^ *[0-9]\+:' \
-    | grep -v '\<UND\>\|\<ABS\>' \
-    | awk 'FS="[ \t]+" {print $9}' \
-    | sed 's/@@.*//' \
-    | grep -v '^$' \
-    | grep -v '@' \
-    | sort -u
-}
-
 analyze_pkg() {
   local pkg="$1"
   local wd="$2"
@@ -259,8 +246,8 @@ analyze_pkg() {
     if ! get_header_ifaces $p $wd/dev/$p; then
       return 1
     fi
-  done > $wd/public_api.txt.1
-  sort -u $wd/public_api.txt.1 > $wd/public_api.txt
+  done > $wd/public_api.txt
+  sort -uo $wd/public_api.txt $wd/public_api.txt
 
   # Packages with shlibs
   local bin_pkgs="$(get_pkg_attribute "$pkg" Binary | grep -v -- '-dev$')"
@@ -280,9 +267,7 @@ analyze_pkg() {
     echo "Failed to locate any shared libs, skipping $pkg..."
     return 1
   fi
-  for l in $(find_shlibs $bindir); do
-    read_binary_api $l
-  done | sort -u > $wd/exported_api.txt
+  $(dirname $0)/read_binary_api $(find_shlibs $bindir) > $wd/exported_api.txt
 
   # Find extraneous symbols
   comm -13 $wd/public_api.txt $wd/exported_api.txt > $wd/exported_only.txt
