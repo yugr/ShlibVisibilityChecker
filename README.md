@@ -71,7 +71,8 @@ The biggest source of errors are missing package dependencies in APT database wh
 installation of all dependent headers and cause preprocessing errors. This happens e.g. for `libudisks2-dev`
 for which `apt-cache show` does not report dependency on `gio-2.0`).
 Another common issue is that public headers are often not well-structured i.e. do not \#include
-all their dependencies (e.g. `libatasmart` [fails to include `stddef.h`](https://github.com/Rupan/libatasmart/issues/1)).
+all their dependencies (e.g. `libatasmart` [fails to include `stddef.h`](https://github.com/Rupan/libatasmart/issues/1)
+and `tdb` [fails to include `sys/types.h`](https://bugzilla.samba.org/show_bug.cgi?id=13398)).
 
 Other issues:
 * need to install transitive dependencies for development packages
@@ -82,4 +83,5 @@ Other issues:
 
 # Tropheys
 
-* [Hide unused symbols in libbz2](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=896750)
+* Bzip2: [Hide unused symbols in libbz2](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=896750)
+* Expat: [Private symbols exported from shared library](https://github.com/libexpat/libexpat/issues/195)
