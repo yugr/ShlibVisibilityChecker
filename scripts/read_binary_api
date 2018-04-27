@@ -76,6 +76,6 @@ for l in "$@"; do
     | sed 's/@@.*//' \
     | grep -v '^$' \
     | grep -v '@' \
-    | (if test -n "$PERM"; then cat; else grep -v '^\(__bss_start\|_edata\|_init\|_fini\|_etext\|__etext\|_end\)$'; fi) \
+    | (if test -z "$PERM"; then cat; else grep -v '^\(__bss_start\|_edata\|_init\|_fini\|_etext\|__etext\|_end\)$'; fi) \
     | sort -u
 done | sort -u
