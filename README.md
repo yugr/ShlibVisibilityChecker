@@ -75,8 +75,8 @@ all their dependencies (e.g. `libatasmart` [fails to include `stddef.h`](https:/
 and `tdb` [fails to include `sys/types.h`](https://bugzilla.samba.org/show_bug.cgi?id=13398)).
 
 Other issues:
+* see if other shlibs or executables _within the same package_ are importing private symbols; this is likely due to intra-project library (or tool) dependencies and should not be reported (`cups` or `libtiff` are notable examples of this)
 * need to install transitive dependencies for development packages (maybe just run everything in chroot?)
-* see if other shlibs within the same package are using private symbols; this is due to intra-project library (or tool) dependencies and should not be reported (`cups` or `libtiff` are notable examples of this)
 * need to install dependencies which are mentioned in pkgconfig files (even if they are not mentioned by `apt-cache`)
 * TODOs are scattered all over the codebase
 * rewrite `debiancheck` in Python/Perl (?)
@@ -87,3 +87,4 @@ Other issues:
 * Bzip2: [Hide unused symbols in libbz2](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=896750)
 * Expat: [Private symbols exported from shared library](https://github.com/libexpat/libexpat/issues/195)
 * Libaudit: [Exported private symbols in audit-userspace](https://www.redhat.com/archives/linux-audit/2018-April/msg00119.html) (partially fixed)
+* Gdbm: [sr #347: Add visibility annotations to hide private symbols](https://puszcza.gnu.org.ua/support/index.php?347)
