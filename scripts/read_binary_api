@@ -21,17 +21,21 @@ Options:
   -x              Enable shell tracing (for debug).
   -h, --help      Print this help and exit.
   -v, --verbose   Print diagnostic info (can use more than once for more details).
-  --permissive    Ignore common dummy symbols (_edata, __bss_start, etc.).
+  --permissive    Ignore dummy symbols introduced by ld (_edata, __bss_start, etc.)
+                  and libgcc (_init, _fini).
+  -i, --import    List exported symbols (default).
+  -i, --import    List imported symbols.
 EOF
   exit 1
 
 }
 
-ARGS=$(getopt -o 'hkxv' --long 'help,verbose,permissive' -n $(basename $0) -- "$@")
+ARGS=$(getopt -o 'hkiexv' --long 'help,verbose,import,export,permissive' -n $(basename $0) -- "$@")
 eval set -- "$ARGS"
 
 V=0
 PERM=
+EXPORT=1
 while true; do
   case "$1" in
     -x)
@@ -43,6 +47,14 @@ while true; do
       ;;
     -v | --verbose)
       V=$((V + 1))
+      shift
+      ;;
+    -i | --import)
+      EXPORT=
+      shift
+      ;;
+    -e | --export)
+      EXPORT=1
       shift
       ;;
     --permissive)
@@ -66,16 +78,16 @@ if [ $# -eq 0 ]; then
   print_help_and_exit
 fi
 
-# Note that we skip symbols which use custom versions (marked with single @)
-# as these most probly come from old unsupported interfaces.
+# (if test -n "$EXPORT"; then grep -v '@'; else sed 's/@.*//'; fi) \
 for l in "$@"; do
   readelf -W --dyn-syms $l \
     | grep '^ *[0-9]\+:' \
-    | grep -v '\<UND\>\|\<ABS\>' \
+    | grep -v '\<ABS\>' \
+    | (if test -n "$EXPORT"; then grep -v '\<UND\>'; else grep '\<UND\>'; fi) \
     | awk 'FS="[ \t]+" {print $9}' \
     | sed 's/@@.*//' \
+    | sed 's/@.*//' \
     | grep -v '^$' \
-    | grep -v '@' \
     | (if test -z "$PERM"; then cat; else grep -v '^\(__bss_start\|_edata\|_init\|_fini\|_etext\|__etext\|_end\)$'; fi) \
     | sort -u
 done | sort -u

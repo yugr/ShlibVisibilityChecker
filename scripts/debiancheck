@@ -89,6 +89,14 @@ find_shlibs() {
   done
 }
 
+find_execs() {
+  for f in $(find "$1" -type f -a -executable); do
+    if file -b $f | grep -q '^ELF.*\(shared object\|executable\)'; then
+      echo $f
+    fi
+  done
+}
+
 find_headers() {
   for f in $(find "$1" -name \*.h -o -name \*.hpp); do
     if test -f $f; then
@@ -258,7 +266,7 @@ analyze_pkg() {
   # Packages with shlibs
   local bin_pkgs="$(get_pkg_attribute "$pkg" Binary | grep -v -- '-dev$')"
   if test $V -gt 0; then
-    echo >&2 "$pkg shlibs: $(echo "$bin_pkgs" | tr '\n' ' ')"
+    echo >&2 "$pkg binary packages: $(echo "$bin_pkgs" | tr '\n' ' ')"
   fi
 
   # Collect binary interfaces
@@ -274,6 +282,11 @@ analyze_pkg() {
     return 1
   fi
   $(dirname $0)/read_binary_api $PERM $(find_shlibs $bindir) > $wd/exported_api.txt
+
+  # Ignore private interfaces used by other modules in same package
+  $(dirname $0)/read_binary_api -i --permissive $(find_execs $bindir) > $wd/private_api.txt
+  comm -23 $wd/exported_api.txt $wd/private_api.txt > $wd/exported_api.txt.1
+  mv $wd/exported_api.txt.1 $wd/exported_api.txt
 
   # Find extraneous symbols
   comm -13 $wd/public_api.txt $wd/exported_api.txt > $wd/exported_only.txt
