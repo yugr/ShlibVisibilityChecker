@@ -88,3 +88,4 @@ Other issues:
 * Expat: [Private symbols exported from shared library](https://github.com/libexpat/libexpat/issues/195)
 * Libaudit: [Exported private symbols in audit-userspace](https://www.redhat.com/archives/linux-audit/2018-April/msg00119.html) (partially fixed)
 * Gdbm: [sr #347: Add visibility annotations to hide private symbols](https://puszcza.gnu.org.ua/support/index.php?347)
+* Libnfnetfilter: [\[RFC\]\[PATCH\] Hide private symbols in libnfnetlink](https://marc.info/?l=netfilter-devel&m=152481166515881)
