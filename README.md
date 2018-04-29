@@ -43,7 +43,8 @@ For a total of 14 (25%).
 
 A list of packages for analysis can be obtained from [Debian rating](https://popcon.debian.org/by_vote):
 ```
-$ curl https://popcon.debian.org/by_vote 2>/dev/null | awk '/^[0-9]/{print $2}' | grep '^lib'
+$ curl https://popcon.debian.org/by_vote 2>/dev/null | awk '/^[0-9]/{print $2}' | grep '^lib' > by_vote
+$ scripts/debiancheck $(head -500 by_vote | tr '\n' ' ')
 ```
 
 You can also collect interfaces from headers and shlibs manually and compare them:
