@@ -90,7 +90,7 @@ find_shlibs() {
 }
 
 find_execs() {
-  for f in $(find "$1" -type f -a -executable); do
+  for f in $(find "$1" -type f); do
     if file -b $f | grep -q '^ELF.*\(shared object\|executable\)'; then
       echo $f
     fi
@@ -285,11 +285,10 @@ analyze_pkg() {
 
   # Ignore private interfaces used by other modules in same package
   $(dirname $0)/read_binary_api -i --permissive $(find_execs $bindir) > $wd/private_api.txt
-  comm -23 $wd/exported_api.txt $wd/private_api.txt > $wd/exported_api.txt.1
-  mv $wd/exported_api.txt.1 $wd/exported_api.txt
+  comm -23 $wd/exported_api.txt $wd/private_api.txt > $wd/exported_api_1.txt
 
   # Find extraneous symbols
-  comm -13 $wd/public_api.txt $wd/exported_api.txt > $wd/exported_only.txt
+  comm -13 $wd/public_api.txt $wd/exported_api_1.txt > $wd/exported_only.txt
   if ! test -s $wd/exported_only.txt; then
     echo "All binary symbols are present in public interface of $pkg."
   else

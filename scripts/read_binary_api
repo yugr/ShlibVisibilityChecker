@@ -23,7 +23,7 @@ Options:
   -v, --verbose   Print diagnostic info (can use more than once for more details).
   --permissive    Ignore dummy symbols introduced by ld (_edata, __bss_start, etc.)
                   and libgcc (_init, _fini).
-  -i, --import    List exported symbols (default).
+  -e, --export    List exported symbols (default).
   -i, --import    List imported symbols.
 EOF
   exit 1
