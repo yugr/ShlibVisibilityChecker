@@ -81,30 +81,6 @@ if [ $# -eq 0 ]; then
   print_help_and_exit
 fi
 
-find_shlibs() {
-  for f in $(find "$1" -name \*.so\* -a -type f); do
-    if file -b $f | grep -q '^ELF.*shared object'; then
-      echo $f
-    fi
-  done
-}
-
-find_execs() {
-  for f in $(find "$1" -type f); do
-    if file -b $f | grep -q '^ELF.*\(shared object\|executable\)'; then
-      echo $f
-    fi
-  done
-}
-
-find_headers() {
-  for f in $(find "$1" -name \*.h -o -name \*.hpp); do
-    if test -f $f; then
-      echo $f
-    fi
-  done
-}
-
 get_pkg_attribute() {
   # Parse e.g. "Depends: libc6-dev | libc-dev, libacl1 (= 2.2.52-3), libattr1-dev (>= 1:2.4.46-8)"
   case $2 in
@@ -121,81 +97,32 @@ get_pkg_attribute() {
     | sort -u
 }
 
-install_pkg() {
-  local p="$1"
-  local dst="$2"
-
-  if is_virtual_pkg "$p"; then
-    p="$(apt_provides "$p" | head -1)"
-  fi
-
-  local tmp="$(mktemp --suffix=.install_pkg -d)"
-  if ! (cd "$tmp" && apt-get -qq download "$p"); then
-    return 1
-  fi
-
-  for deb in $tmp/*.deb; do
-    (cd $tmp && ar x $deb > /dev/null)
-    tar -C $dst -xf $tmp/data.tar.*
-  done
-
-  rm -rf $tmp
-}
-
 is_bad_pkg() {
-  echo "$1" | grep -q 'libreoffice'
+  echo "$1" | grep -q '^\(libreoffice\|glibc\)'
 }
 
 is_cpp_header() {
    grep -q '^[ 	]*class\>\|private:\|public:\|\<operator\>.*(\|\<template *<' $1  # FIXME: ugly...
 }
 
-# From https://askubuntu.com/a/366240
-apt_provides() {
-  apt-cache show $(apt-cache search "$1" | awk '{ print $1 }' | tr '\n' ' ') \
-    | sed -n '/^Package: \(.*\)$/ {s//\1/; h}; /^Provides:.*'"$1"'/ {x; p}'
-}
-
-is_virtual_pkg() {
-  (apt-cache show --quiet=0 "$1" 2>&1 >/dev/null || true) | grep -q 'purely virtual'
-}
-
 get_header_ifaces() {
   local pkg="$1"
-  local wd="$2"
+  local all_hdrs="$2"
+  local wd="$3"
 
-  # Download headers
   mkdir -p $wd
-  if ! install_pkg $pkg $wd 2>>$wd/download.log; then
-    echo >&2 "Failed to download header package $pkg, may report false positives"
-    return 0
-  fi
 
-  local incroot=$wd/usr/include
-  if test $(find_headers $incroot | wc -l) -eq 0; then
+  hdrs=$(dpkg -L $pkg | grep '\.\(h\|hpp\|H\)$' | tr '\n' ' ')
+  if test $(echo $hdrs | wc -w) = 0; then
     echo >&2 "Failed to locate any headers for package $pkg, skipping..."
     return 0
   fi
-  local hdrs="$(find_headers $incroot)"
 
-  # Collect pkgconfig files
-  local pkgconfig=$wd/pkgconfig.txt
-  find $wd -path '*/pkgconfig/*.pc' > $pkgconfig
-
-  # Install dependent headers
-  # TODO: handle recursive deps (maybe share them across all packages to save time)
-  for p in $(get_pkg_attribute $pkg Depends | grep -- '-dev$'); do
-    if test $V -gt 0; then
-      echo >&2 "Installing dependency $p"
-    fi
-    install_pkg $p $wd
-  done
-
-  # Collect CFLAGS from pkgconfigs (now that we have all dependencies)
+  # Collect CFLAGS from pkgconfigs
   local pkgconfig_cflags=$wd/pkgconfigs_cflags.txt
-  for pc in $(cat $pkgconfig); do
+  for pc in $(dpkg -L $pkg | grep '\.pc$' | tr '\n' ' '); do
     local stem="$(basename $pc | sed 's/\.[^.]*$//')"
-    PKG_CONFIG_PATH=$(dirname $pc) pkg-config --print-errors --cflags --define-variable=prefix=$wd/usr --define-variable=includedir=$wd/usr/include $stem
+    PKG_CONFIG_PATH=$(dirname $pc) pkg-config --print-errors --cflags $stem
   done > $pkgconfig_cflags
   sort -uo $pkgconfig_cflags $pkgconfig_cflags
 
@@ -207,28 +134,26 @@ get_header_ifaces() {
     PKGCONFIG_CFLAGS="$(cat $pkgconfig_cflags)"
     ;;
   *)
-    # TODO: we can be more aggressive if there are several incompabile pkgconfigs (e.g. concat all?)
-    echo >&2 "Too many pkgconfig files, ignoring..."
-    PKGCONFIG_CFLAGS=
+    # Try to make sense of several .pc files
+    PKGCONFIG_CFLAGS=$(cat $pkgconfig_cflags | tr ' ' '\n' | sort -u | tr '\n' ' ')
+    if echo "$PKGCONFIG_CFLAGS" | grep -q '\(^\| \)-D'; then
+      echo >&2 'Failed to merge multiple pkgconfig files...'
+      PKGCONFIG_CFLAGS=
+    fi
     ;;
   esac
 
   # Extract public interfaces
   for h in $hdrs; do
-    if ! test -f $h; then
-      echo >&2 "Header $h in package $pkg is missing, may report false positives..."
-      continue
-    fi
-
     # TODO: determine clang's header path automatically
-    # TODO: maybe just compile in chroot instead of -I mess
-    CFLAGS="$PKGCONFIG_CFLAGS -I$incroot -I$incroot/x86_64-linux-gnu -I/usr/include -I/usr/include/x86_64-linux-gnu -I/usr/lib/llvm-5.0/lib/clang/5.0.0/include"
-    if is_cpp_header $h; then  # FIXME: ugly...
+    CFLAGS="$PKGCONFIG_CFLAGS -I/usr/include -I/usr/include/x86_64-linux-gnu -I/usr/lib/llvm-5.0/lib/clang/5.0.0/include"
+    if is_cpp_header $h; then  # TODO: instead try both C and C++
       CFLAGS="$CFLAGS -x c++"
     fi
 
-    if ! $read_header_api --root $incroot --cflags "$CFLAGS" $h 2> $wd/err.log; then
-      if grep -rq '# *include.*[<"/]'"$(basename $h)" $incroot; then
+    # TODO: implement --only
+    if ! $read_header_api --only "$all_hdrs" --cflags "$CFLAGS" $h 2> $wd/err.log; then
+      if grep -q '# *include [<"/]'"$(basename $h)" $all_hdrs; then
         # This is likely a helper header, not included directly
         continue
       fi
@@ -246,45 +171,57 @@ analyze_pkg() {
 
   mkdir -p $wd
 
-  # Packages with headers
+  # Install all binary packages
+  local pkgs="$(get_pkg_attribute "$pkg" Binary)"
   local dev_pkgs="$(get_pkg_attribute "$pkg" Binary | grep -- '-dev$')"
-  if test $(echo "$dev_pkgs" | wc -l) = 0; then
-    echo "Development packages for $pkg not found, skipping..."
+  if test $V -gt 0; then
+    echo >&2 "$pkg packages: $(echo "$pkgs" | tr '\n' ' ')"
+    echo >&2 "$pkg dev packages: $(echo "$dev_pkgs" | tr '\n' ' ')"
+  fi
+  for p in $pkgs; do
+    apt-get install -qq -y $p  # Install single package at a time, in case some of them are missing
+  done
+
+  # Analyze contents of package
+  touch $wd/shlibs.txt $wd/elfs.txt $wd/all_hdrs.txt
+  for f in $(dpkg -L $pkgs | grep -v '\.gz$\|\.html\?$'); do
+    if file -b $f | grep -q '^ELF.*shared object'; then
+      echo $f >> $wd/shlibs.txt
+    fi
+    if file -b $f | grep -q '^ELF.*\(shared object\|executable\)'; then
+      echo $f >> $wd/elfs.txt
+    fi
+    if echo $f | grep -q '\.\(h\|hpp\|H\)$'; then
+      echo $f >> $wd/all_hdrs.txt
+    fi
+  done
+
+  if test $(wc -l < $wd/all_hdrs.txt) = 0; then
+    echo "Headers not found in $pkg, skipping..."
     return 1
-  elif test $V -gt 0; then
-    echo >&2 "$pkg headers: $(echo "$dev_pkgs" | tr '\n' ' ')"
+  elif test $(wc -l < $wd/shlibs.txt) = 0; then
+    echo "Failed to locate any shared libs, skipping $pkg..."
+    return 1
+  fi
+
+  all_hdrs=$(tr '\n' ' ' < $wd/all_hdrs.txt)
+  if test $V -gt 0; then
+    echo >&2 "$pkg headers: $all_hdrs"
   fi
 
   # Collect header interfaces
   for p in $dev_pkgs; do
-    if ! get_header_ifaces $p $wd/dev/$p; then
+    if ! get_header_ifaces $p "$all_hdrs" $wd/$p; then
       return 1
     fi
   done > $wd/public_api.txt
   sort -uo $wd/public_api.txt $wd/public_api.txt
 
-  # Packages with shlibs
-  local bin_pkgs="$(get_pkg_attribute "$pkg" Binary | grep -v -- '-dev$')"
-  if test $V -gt 0; then
-    echo >&2 "$pkg binary packages: $(echo "$bin_pkgs" | tr '\n' ' ')"
-  fi
-
   # Collect binary interfaces
-  local bindir=$wd/bin
-  mkdir -p $bindir
-  for p in $bin_pkgs; do
-    if ! install_pkg $p $bindir 2>>$wd/download.log; then
-      echo "Failed to download binary package $p, may cause false negatives"
-    fi
-  done
-  if test $(find_shlibs $bindir | wc -l) -eq 0; then
-    echo "Failed to locate any shared libs, skipping $pkg..."
-    return 1
-  fi
-  $(dirname $0)/read_binary_api $PERM $(find_shlibs $bindir) > $wd/exported_api.txt
+  $(dirname $0)/read_binary_api $PERM $(tr '\n' ' ' < $wd/shlibs.txt) > $wd/exported_api.txt
 
   # Ignore private interfaces used by other modules in same package
-  $(dirname $0)/read_binary_api -i --permissive $(find_execs $bindir) > $wd/private_api.txt
+  $(dirname $0)/read_binary_api -i --permissive $(tr '\n' ' ' < $wd/elfs.txt) > $wd/private_api.txt
   comm -23 $wd/exported_api.txt $wd/private_api.txt > $wd/exported_api_1.txt
 
   # Find extraneous symbols
@@ -306,12 +243,12 @@ analyze_pkg() {
   fi
 
 #  # Find missing APIs
-#  comm -23 $wd/public_api.txt $wd/exported_api.txt > $wd/public_only.txt
-#  if test -s $wd/public_only.txt; then
+#  comm -23 $wd/public_api.txt $wd/exported_api_1.txt > $wd/public_only.txt
+#  if ! test -s $wd/public_only.txt; then
+#    echo "All APIs are present in shlibs"
+#  else
 #    echo "APIs not in binary interface:"
 #    cat $wd/public_only.txt | sed 's/^/  /'
-#  else
-#    echo "All APIs are present in shlibs"
 #  fi
 
   return 0

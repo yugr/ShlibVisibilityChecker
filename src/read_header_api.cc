@@ -27,11 +27,12 @@ struct Symbol {
 
 struct InterfaceInfo {
   int Verbose;
-  std::string Root;
+  const std::string &Root;
+  const std::set<std::string> OnlyHdrs;
   std::vector<Symbol> Syms;
   bool HasClasses;
-  InterfaceInfo(int Verbose, std::string Root)
-    : Verbose(Verbose), Root(Root), HasClasses(false) {}
+  InterfaceInfo(int Verbose, const std::string &Root, const std::set<std::string> &OnlyHdrs)
+    : Verbose(Verbose), Root(Root), OnlyHdrs(OnlyHdrs), HasClasses(false) {}
 };
 
 static std::string ToStr(CXString CXS) {
@@ -76,6 +77,10 @@ static enum CXChildVisitResult collectDecls(CXCursor C, CXCursor Parent, CXClien
   if (!IsUnderRoot(SpellFilename, Info->Root)) {
     if (Info->Verbose)
       fprintf(stderr, "note: skipping declaration at %s:%u (not under %s)\n", SpellFilename.c_str(), Line, Info->Root.c_str());
+    return CXChildVisit_Continue;
+  } else if (!Info->OnlyHdrs.empty() && !Info->OnlyHdrs.count(SpellFilename)) {
+    if (Info->Verbose)
+      fprintf(stderr, "note: skipping declaration at %s:%u (not in list of headers)\n", SpellFilename.c_str(), Line);
     return CXChildVisit_Continue;
   }
 
@@ -122,6 +127,7 @@ Options:\n\
   -c FLAGS, --cflags FLAGS   Specify CFLAGS to use.\n\
   -r ROOT, --root ROOT       Only consider symbols which are defined\n\
                              in files under ROOT.\n\
+  --only A.H,B.H,...         Report only functions in these headers.\n\
 ", prog);
   exit(0);
 }
@@ -130,6 +136,7 @@ int main(int argc, char *argv[]) {
   const char *me = basename((char *)argv[0]);
 
   std::string Flags, Root;
+  std::set<std::string> OnlyHdrs;
   int Verbose = 0;
   while (1) {
     static struct option long_opts[] = {
@@ -137,6 +144,8 @@ int main(int argc, char *argv[]) {
       {"cflags", required_argument, 0, 'c'},
       {"root", required_argument, 0, 'r'},
       {"help", required_argument, 0, 'h'},
+#     define OPT_ONLY 1
+      {"only", required_argument, 0, OPT_ONLY},
     };
 
     int opt_index = 0;
@@ -162,6 +171,15 @@ int main(int argc, char *argv[]) {
     case 'h':
       usage(me);
       break;
+    case OPT_ONLY: {
+        char *hdrs = optarg;
+        char *rest = 0;
+        while (char *hdr = strtok_r(hdrs, " \t,", &rest)) {
+          hdrs = 0;
+          OnlyHdrs.insert(RealPath(hdr));
+        }
+        break;
+      }
     default:
       abort();
     }
@@ -218,7 +236,7 @@ int main(int argc, char *argv[]) {
         HdrRoot = Hdr.substr(0, J) + "/include";
     }
 
-    InterfaceInfo Info(Verbose, HdrRoot);
+    InterfaceInfo Info(Verbose, HdrRoot, OnlyHdrs);
     clang_visitChildren(clang_getTranslationUnitCursor(Unit), collectDecls, (CXClientData)&Info);
 
     if (Info.HasClasses)
