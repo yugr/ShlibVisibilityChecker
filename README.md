@@ -82,7 +82,7 @@ in source file. This happens in plugins or tightly interconnected shlibs within 
 Such cases should hopefully be rare.
 
 ShlibVisibilityChecker is a heuristic tool so it will not be able to analyze all packages.
-Current success rate is around 50%.
+Current success rate is around 60%.
 Major reasons for errors are
 * not well-structured headers i.e. headers which do not \#include all their dependencies 
   (e.g. `libatasmart` [fails to include `stddef.h`](https://github.com/Rupan/libatasmart/issues/1)
