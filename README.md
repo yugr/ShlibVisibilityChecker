@@ -57,7 +57,7 @@ $ scripts/debiancheck $(head -500 by_vote | tr '\n' ' ')
 You can also collect interfaces from headers and shlibs manually and compare them:
 ```
 $ bin/read_header_api --cflags="-I/usr/include -I$AUDIT_INSTALL/include -I/usr/lib/llvm-5.0/lib/clang/5.0.0/include" $AUDIT_INSTALL/include/*.h > public_api.txt
-$ scripts/read_binary_api $AUDIT_INSTALL/lib/*.so* > exported_api.txt
+$ scripts/read_binary_api --permissive $AUDIT_INSTALL/lib/*.so* > exported_api.txt
 $ comm -13 public_api.txt exported_api.txt
 ```
 
@@ -90,10 +90,9 @@ Major reasons for errors are
 * internal headers which should not be \#included directly (e.g. `lzma/container.h`)
 
 Other issues:
-* would be interesting to go over dependent packages and check if they use invalid symbols
-* the tool is much slower than needed
 * TODOs are scattered all over the codebase
-* rewrite `debiancheck` in Python/Perl (?)
+* would be interesting to go over dependent packages and check if they use invalid symbols
+* the tool is much slower than needed (ideally needs to be rewritten in combination of Python and C++)
 
 # Tropheys
 

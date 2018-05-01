@@ -101,8 +101,15 @@ is_bad_pkg() {
   echo "$1" | grep -q '^\(libreoffice\|glibc\)'
 }
 
+get_paths() {
+#  local CC=clang++-5.0
+  local CC=g++
+  $CC -E -v -x $1 /dev/null 2>&1 | sed -n '/search starts here/,/End of search list/ { /^ / { s/\(.*\)/-I\1/; p } }' | tr '\n' ' '
+}
+
 is_cpp_header() {
-   grep -q '^[ 	]*class\>\|private:\|public:\|\<operator\>.*(\|\<template *<' $1  # FIXME: ugly...
+  # This is just for diagnostic purposes so can be imprecise
+  grep -q '^[         ]*class\>\|\(public\|private\|protected\):\|\<std::\|\<operator\>.*(\|\<template *<' $1
 }
 
 get_header_ifaces() {
@@ -144,23 +151,25 @@ get_header_ifaces() {
   esac
 
   # Extract public interfaces
+  CFLAGS="$PKGCONFIG_CFLAGS $(get_paths c)"
+  CXXFLAGS="$PKGCONFIG_CFLAGS $(get_paths c++)"
+  STDINC="-include stdint.h -include stddef.h -include stdio.h"  # TODO: unistd.h sys/types.h?
   for h in $hdrs; do
-    # TODO: determine clang's header path automatically
-    CFLAGS="$PKGCONFIG_CFLAGS -I/usr/include -I/usr/include/x86_64-linux-gnu -I/usr/lib/llvm-5.0/lib/clang/5.0.0/include"
-    if is_cpp_header $h; then  # TODO: instead try both C and C++
-      CFLAGS="$CFLAGS -x c++"
-    fi
-
-    # TODO: implement --only
-    if ! $read_header_api --only "$all_hdrs" --cflags "$CFLAGS" $h 2> $wd/err.log; then
-      if grep -q '# *include [<"/]'"$(basename $h)" $all_hdrs; then
-        # This is likely a helper header, not included directly
-        continue
+    # Try building both C and C++
+    if ! $read_header_api --only "$all_hdrs" --cflags "$CFLAGS" $h 2>$wd/err.log \
+        && ! $read_header_api --only "$all_hdrs" --cflags "$CXXFLAGS -x c++" $h 2>$wd/err_cpp.log \
+        && ! $read_header_api --only "$all_hdrs" --cflags "$CFLAGS $STDINC" $h 2>/dev/null \
+        && ! $read_header_api --only "$all_hdrs" --cflags "$CXXFLAGS $STDINC -x c++" $h 2>/dev/null; then
+      # Is this a helper header and so not intended for direct inclusion?
+      if ! grep -q '# *include [<"/].*'"$(basename $h)" $all_hdrs; then
+        if is_cpp_header "$h"; then
+          cat >&2 $wd/err_cpp.log
+        else
+          cat >&2 $wd/err_c.log
+        fi
+        echo >&2 "Failed to parse $h..."
+        return 1
       fi
-
-      cat >&2 $wd/err.log
-      echo >&2 "Failed to parse $h..."
-      return 1
     fi
   done
 }
