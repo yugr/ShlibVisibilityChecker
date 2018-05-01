@@ -65,7 +65,7 @@ $ comm -13 public_api.txt exported_api.txt
 
 To perform the analysis `debiancheck` installs new Debian packages so it's recommended to run it under chroot.
 There are many instructions on setting up chroot e.g. [this one](https://github.com/yugr/debian_pkg_test).
-To run analysis you'll need to install `file`.
+To run analysis you'll need to install `file` and `aptitude`.
 
 To build support tools you'll need to install `clang-5.0`, `llvm-5.0`, `libclang-5.0-dev`
 (in addition to standard `gcc` and `make`). Then just do `make clean all` in tool's directory.

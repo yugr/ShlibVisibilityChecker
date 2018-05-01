@@ -156,7 +156,7 @@ get_header_ifaces() {
   STDINC="-include stdint.h -include stddef.h -include stdio.h"  # TODO: unistd.h sys/types.h?
   for h in $hdrs; do
     # Try building both C and C++
-    if ! $read_header_api --only "$all_hdrs" --cflags "$CFLAGS" $h 2>$wd/err.log \
+    if ! $read_header_api --only "$all_hdrs" --cflags "$CFLAGS" $h 2>$wd/err_c.log \
         && ! $read_header_api --only "$all_hdrs" --cflags "$CXXFLAGS -x c++" $h 2>$wd/err_cpp.log \
         && ! $read_header_api --only "$all_hdrs" --cflags "$CFLAGS $STDINC" $h 2>/dev/null \
         && ! $read_header_api --only "$all_hdrs" --cflags "$CXXFLAGS $STDINC -x c++" $h 2>/dev/null; then
@@ -187,8 +187,11 @@ analyze_pkg() {
     echo >&2 "$pkg packages: $(echo "$pkgs" | tr '\n' ' ')"
     echo >&2 "$pkg dev packages: $(echo "$dev_pkgs" | tr '\n' ' ')"
   fi
+  # Install single package at a time, in case some of them are missing.
+  # Use Aptitude to automatically resolve conflicts.
   for p in $pkgs; do
-    apt-get install -qq -y $p  # Install single package at a time, in case some of them are missing
+#    apt-get install -qq -y $p
+    aptitude install -y -q=2 $p
   done
 
   # Analyze contents of package
