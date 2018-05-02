@@ -16,6 +16,7 @@ in the same package and `debiancheck` tries hard to not report such cases).
 
 Such discrepancies should then be fixed by recompiling package
 with `-fvisibility=hidden` (see [here](https://gcc.gnu.org/wiki/Visibility) for details).
+A typical fix, for typical Autoconf project can be found [here](https://github.com/cacalabs/libcaca/issues/33).
 
 ShlibVisibilityChecker _not_ meant to be 100% precise but rather provide assistance in locating packages
 which may benefit the most from visibility annotations (and to understand how bad the situation
@@ -96,9 +97,12 @@ Other issues:
 
 # Tropheys
 
+The tool found huge number of packages that lacked visibility annotations. Here are some which I tried to fix:
+
 * Bzip2: [Hide unused symbols in libbz2](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=896750)
 * Expat: [Private symbols exported from shared library](https://github.com/libexpat/libexpat/issues/195)
 * Libaudit: [Exported private symbols in audit-userspace](https://www.redhat.com/archives/linux-audit/2018-April/msg00119.html) (partially fixed)
 * Gdbm: [sr #347: Add visibility annotations to hide private symbols](https://puszcza.gnu.org.ua/support/index.php?347)
 * Libnfnetfilter: [\[RFC\]\[PATCH\] Hide private symbols in libnfnetlink](https://marc.info/?l=netfilter-devel&m=152481166515881)
 * Libarchive: [Hide private symbols in libarchive.so](https://github.com/libarchive/libarchive/issues/1017)
+* Libcaca: [Hide private symbols in libcaca](https://github.com/cacalabs/libcaca/issues/33)
