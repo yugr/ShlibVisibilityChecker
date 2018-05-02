@@ -101,3 +101,4 @@ Other issues:
 * Libaudit: [Exported private symbols in audit-userspace](https://www.redhat.com/archives/linux-audit/2018-April/msg00119.html) (partially fixed)
 * Gdbm: [sr #347: Add visibility annotations to hide private symbols](https://puszcza.gnu.org.ua/support/index.php?347)
 * Libnfnetfilter: [\[RFC\]\[PATCH\] Hide private symbols in libnfnetlink](https://marc.info/?l=netfilter-devel&m=152481166515881)
+* Libarchive: [Hide private symbols in libarchive.so](https://github.com/libarchive/libarchive/issues/1017)
