@@ -16,7 +16,7 @@ in the same package and `debiancheck` tries hard to not report such cases).
 
 Such discrepancies should then be fixed by recompiling package
 with `-fvisibility=hidden` (see [here](https://gcc.gnu.org/wiki/Visibility) for details).
-A typical fix, for typical Autoconf project can be found [here](https://github.com/cacalabs/libcaca/issues/33).
+A typical fix, for typical Autoconf project can be found [here](https://github.com/cacalabs/libcaca/issues/33#issuecomment-386328329).
 
 ShlibVisibilityChecker _not_ meant to be 100% precise but rather provide assistance in locating packages
 which may benefit the most from visibility annotations (and to understand how bad the situation
@@ -106,3 +106,4 @@ The tool found huge number of packages that lacked visibility annotations. Here 
 * Libnfnetfilter: [\[RFC\]\[PATCH\] Hide private symbols in libnfnetlink](https://marc.info/?l=netfilter-devel&m=152481166515881)
 * Libarchive: [Hide private symbols in libarchive.so](https://github.com/libarchive/libarchive/issues/1017)
 * Libcaca: [Hide private symbols in libcaca](https://github.com/cacalabs/libcaca/issues/33)
+* Libgmp: [Building gmp with -fvisibility=hidden](https://gmplib.org/list-archives/gmp-discuss/2018-April/006229.html)
