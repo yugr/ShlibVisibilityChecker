@@ -236,7 +236,10 @@ analyze_pkg() {
   $(dirname $0)/read_binary_api -i --permissive $(tr '\n' ' ' < $wd/elfs.txt) > $wd/private_api.txt
   comm -23 $wd/exported_api.txt $wd/private_api.txt > $wd/exported_api_1.txt
 
-  # Find extraneous symbols
+  # TODO: for C++ we may want to ignore vtables, RTTI and C++ default methods
+  # (as libclang does not report them).
+
+  # Report extraneous symbols
   comm -13 $wd/public_api.txt $wd/exported_api_1.txt > $wd/exported_only.txt
   if ! test -s $wd/exported_only.txt; then
     echo "All binary symbols are present in public interface of $pkg."
