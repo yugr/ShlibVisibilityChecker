@@ -16,7 +16,7 @@ in the same package and `debiancheck` tries hard to not report such cases).
 
 Such discrepancies should then be fixed by recompiling package
 with `-fvisibility=hidden` (see [here](https://gcc.gnu.org/wiki/Visibility) for details).
-A typical fix, for typical Autoconf project can be found [here](https://github.com/cacalabs/libcaca/issues/33#issuecomment-386328329).
+A typical fix, for typical Autoconf project can be found [here](https://github.com/cacalabs/libcaca/issues/33#issuecomment-387656546).
 
 ShlibVisibilityChecker _not_ meant to be 100% precise but rather provide assistance in locating packages
 which may benefit the most from visibility annotations (and to understand how bad the situation
