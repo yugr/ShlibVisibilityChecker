@@ -103,7 +103,7 @@ The tool found huge number of packages that lacked visibility annotations. Here 
 * Expat: [Private symbols exported from shared library](https://github.com/libexpat/libexpat/issues/195)
 * Libaudit: [Exported private symbols in audit-userspace](https://www.redhat.com/archives/linux-audit/2018-April/msg00119.html) (partially fixed)
 * Gdbm: [sr #347: Add visibility annotations to hide private symbols](https://puszcza.gnu.org.ua/support/index.php?347)
-* Libnfnetfilter: [\[RFC\]\[PATCH\] Hide private symbols in libnfnetlink](https://marc.info/?l=netfilter-devel&m=152481166515881)
+* Libnfnetfilter: [\[RFC\]\[PATCH\] Hide private symbols in libnfnetlink](https://marc.info/?l=netfilter-devel&m=152481166515881) (fixed)
 * Libarchive: [Hide private symbols in libarchive.so](https://github.com/libarchive/libarchive/issues/1017)
 * Libcaca: [Hide private symbols in libcaca](https://github.com/cacalabs/libcaca/issues/33)
 * Libgmp: [Building gmp with -fvisibility=hidden](https://gmplib.org/list-archives/gmp-discuss/2018-April/006229.html)
