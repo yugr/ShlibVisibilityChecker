@@ -107,3 +107,4 @@ The tool found huge number of packages that lacked visibility annotations. Here 
 * Libarchive: [Hide private symbols in libarchive.so](https://github.com/libarchive/libarchive/issues/1017)
 * Libcaca: [Hide private symbols in libcaca](https://github.com/cacalabs/libcaca/issues/33)
 * Libgmp: [Building gmp with -fvisibility=hidden](https://gmplib.org/list-archives/gmp-discuss/2018-April/006229.html)
+* Vorbis: [Remove private symbols from Vorbis shared libs](https://github.com/xiph/vorbis/issues/43)
