@@ -95,7 +95,7 @@ Other issues:
 * would be interesting to go over dependent packages and check if they use invalid symbols
 * the tool is much slower than needed (ideally needs to be rewritten in combination of Python and C++)
 
-# Tropheys
+# Trophies
 
 The tool found huge number of packages that lacked visibility annotations. Here are some which I tried to fix:
 
