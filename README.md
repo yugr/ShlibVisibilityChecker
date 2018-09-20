@@ -100,7 +100,7 @@ Other issues:
 The tool found huge number of packages that lacked visibility annotations. Here are some which I tried to fix:
 
 * Bzip2: [Hide unused symbols in libbz2](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=896750)
-* Expat: [Private symbols exported from shared library](https://github.com/libexpat/libexpat/issues/195)
+* Expat: [Private symbols exported from shared library](https://github.com/libexpat/libexpat/issues/195) (fixed)
 * Libaudit: [Exported private symbols in audit-userspace](https://www.redhat.com/archives/linux-audit/2018-April/msg00119.html) (partially fixed)
 * Gdbm: [sr #347: Add visibility annotations to hide private symbols](https://puszcza.gnu.org.ua/support/index.php?347)
 * Libnfnetfilter: [\[RFC\]\[PATCH\] Hide private symbols in libnfnetlink](https://marc.info/?l=netfilter-devel&m=152481166515881) (fixed)
