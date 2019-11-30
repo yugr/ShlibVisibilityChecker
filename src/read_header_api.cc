@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  * 
- * Copyright (c) 2018 Yury Gribov
+ * Copyright (c) 2018-2019 Yury Gribov
  * 
  * Use of this source code is governed by The MIT License (MIT)
  * that can be found in the LICENSE.txt file.
@@ -60,6 +60,7 @@ static bool IsUnderRoot(const std::string &Filename, const std::string &Root) {
 }
 
 static enum CXChildVisitResult collectDecls(CXCursor C, CXCursor Parent, CXClientData Data) {
+  (void)Parent;
   InterfaceInfo *Info = (InterfaceInfo *)Data;
 
 #if 0
@@ -76,11 +77,13 @@ static enum CXChildVisitResult collectDecls(CXCursor C, CXCursor Parent, CXClien
   std::string SpellFilename = ParseLoc(Loc, &Line, false);
   if (!IsUnderRoot(SpellFilename, Info->Root)) {
     if (Info->Verbose)
-      fprintf(stderr, "note: skipping declaration at %s:%u (not under %s)\n", SpellFilename.c_str(), Line, Info->Root.c_str());
+      fprintf(stderr, "note: skipping declaration at %s:%u (not under %s)\n",
+              SpellFilename.c_str(), Line, Info->Root.c_str());
     return CXChildVisit_Continue;
   } else if (!Info->OnlyHdrs.empty() && !Info->OnlyHdrs.count(SpellFilename)) {
     if (Info->Verbose)
-      fprintf(stderr, "note: skipping declaration at %s:%u (not in list of headers)\n", SpellFilename.c_str(), Line);
+      fprintf(stderr, "note: skipping declaration at %s:%u (not in list of headers)\n",
+              SpellFilename.c_str(), Line);
     return CXChildVisit_Continue;
   }
 
