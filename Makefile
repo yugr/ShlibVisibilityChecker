@@ -1,13 +1,13 @@
 # The MIT License (MIT)
 # 
-# Copyright (c) 2018 Yury Gribov
+# Copyright (c) 2018-2019 Yury Gribov
 # 
 # Use of this source code is governed by The MIT License (MIT)
 # that can be found in the LICENSE.txt file.
 
 $(shell mkdir -p bin)
 
-LLVM_CONFIG = llvm-config-5.0
+LLVM_CONFIG ?= llvm-config-6.0
 
 CXX = g++
 

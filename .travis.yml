@@ -1,0 +1,23 @@
+# TODO:
+# * run tests
+# * coverage
+# * sanitizers
+# * valgrind
+# * CSA
+
+language: c
+os: linux
+script: make clean all
+jobs:
+  include:
+    - stage: baseline
+      name: gcc-libclang6
+      compiler: gcc
+      env:
+        - LLVM_CONFIG=llvm-config-6.0
+      addons:
+        apt:
+          packages:
+            - llvm-6.0
+            - libclang1-6.0
+            - libclang-6.0-dev
