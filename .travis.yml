@@ -1,9 +1,7 @@
 # TODO:
 # * run tests
 # * coverage
-# * sanitizers
-# * valgrind
-# * CSA
+# * analyzers: sanitizers, valgrind, Coverity Scan, CSA
 
 language: c
 os: linux
@@ -17,7 +15,43 @@ jobs:
         - LLVM_CONFIG=llvm-config-6.0
       addons:
         apt:
+          sources:
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
           packages:
             - llvm-6.0
             - libclang1-6.0
             - libclang-6.0-dev
+    - name: clang-libclang6
+      compiler: clang
+      env:
+        - LLVM_CONFIG=llvm-config-6.0
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+            - llvm-6.0
+            - libclang1-6.0
+            - libclang-6.0-dev
+    - name: gcc-libclang7
+      compiler: gcc
+      env:
+        - LLVM_CONFIG=llvm-config-7
+      dist: bionic
+      addons:
+        apt:
+          packages:
+            - llvm-7.0
+            - libclang1-7.0
+            - libclang-7.0-dev
+    - name: gcc-libclang8
+      compiler: gcc
+      env:
+        - LLVM_CONFIG=llvm-config-8
+      dist: bionic
+      addons:
+        apt:
+          packages:
+            - llvm-8.0
+            - libclang1-8.0
+            - libclang-8.0-dev
