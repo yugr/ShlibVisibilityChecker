@@ -1,3 +1,6 @@
+[![License](http://img.shields.io/:license-MIT-blue.svg)](https://github.com/yugr/ShlibVisibilityChecker/blob/master/LICENSE.txt)
+[![Build Status](https://travis-ci.org/yugr/ShlibVisibilityChecker.svg?branch=master)](https://travis-ci.org/yugr/ShlibVisibilityChecker)
+
 # What's this?
 
 ShlibVisibilityChecker is a small tool which locates internal symbols
