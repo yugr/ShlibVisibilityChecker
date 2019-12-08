@@ -2,7 +2,7 @@
 
 # The MIT License (MIT)
 # 
-# Copyright (c) 2018 Yury Gribov
+# Copyright (c) 2018-2019 Yury Gribov
 # 
 # Use of this source code is governed by The MIT License (MIT)
 # that can be found in the LICENSE.txt file.
@@ -11,7 +11,7 @@
 
 set -eu
 
-read_header_api=$(dirname $0)/../bin/read_header_api
+PATH="$(dirname $0)/../bin:$PATH"
 
 print_help_and_exit() {
   cat <<EOF
@@ -156,10 +156,10 @@ get_header_ifaces() {
   STDINC="-include stdint.h -include stddef.h -include stdio.h"  # TODO: unistd.h sys/types.h?
   for h in $hdrs; do
     # Try building both C and C++
-    if ! $read_header_api --only "$all_hdrs" --cflags "$CFLAGS" $h 2>$wd/err_c.log \
-        && ! $read_header_api --only "$all_hdrs" --cflags "$CXXFLAGS -x c++" $h 2>$wd/err_cpp.log \
-        && ! $read_header_api --only "$all_hdrs" --cflags "$CFLAGS $STDINC" $h 2>/dev/null \
-        && ! $read_header_api --only "$all_hdrs" --cflags "$CXXFLAGS $STDINC -x c++" $h 2>/dev/null; then
+    if ! read_header_api --only "$all_hdrs" --cflags "$CFLAGS" $h 2>$wd/err_c.log \
+        && ! read_header_api --only "$all_hdrs" --cflags "$CXXFLAGS -x c++" $h 2>$wd/err_cpp.log \
+        && ! read_header_api --only "$all_hdrs" --cflags "$CFLAGS $STDINC" $h 2>/dev/null \
+        && ! read_header_api --only "$all_hdrs" --cflags "$CXXFLAGS $STDINC -x c++" $h 2>/dev/null; then
       # Is this a helper header and so not intended for direct inclusion?
       if ! grep -q '# *include [<"/].*'"$(basename $h)" $all_hdrs; then
         if is_cpp_header "$h"; then
@@ -230,10 +230,10 @@ analyze_pkg() {
   sort -uo $wd/public_api.txt $wd/public_api.txt
 
   # Collect binary interfaces
-  $(dirname $0)/read_binary_api $PERM $(tr '\n' ' ' < $wd/shlibs.txt) > $wd/exported_api.txt
+  read_binary_api $PERM $(tr '\n' ' ' < $wd/shlibs.txt) > $wd/exported_api.txt
 
   # Ignore private interfaces used by other modules in same package
-  $(dirname $0)/read_binary_api -i --permissive $(tr '\n' ' ' < $wd/elfs.txt) > $wd/private_api.txt
+  read_binary_api -i --permissive $(tr '\n' ' ' < $wd/elfs.txt) > $wd/private_api.txt
   comm -23 $wd/exported_api.txt $wd/private_api.txt > $wd/exported_api_1.txt
 
   # TODO: for C++ we may want to ignore vtables, RTTI and C++ default methods

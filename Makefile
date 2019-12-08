@@ -29,13 +29,16 @@ ifneq (,$(UBSAN))
   LDFLAGS += -fsanitize=undefined
 endif
 
-all: bin/read_header_api
+all: bin/read_header_api bin/read_binary_api
 
 check:
 	scripts/debiancheck libacl1
 
 bin/read_header_api: bin/read_header_api.o
 	$(CXX) $(LDFLAGS) -o $@ $^ -lclang
+
+bin/read_binary_api: scripts/read_binary_api
+	cp $< $@
 
 bin/%.o: src/%.cc
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
