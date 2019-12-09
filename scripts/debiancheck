@@ -31,6 +31,9 @@ EOF
 
 }
 
+which aptitude >/dev/null || error "'aptitude' not installed"
+which file >/dev/null || error "'file' not installed"
+
 ARGS=$(getopt -o 'o:hkxv' --long 'help,keep,verbose,permissive' -n $(basename $0) -- "$@")
 eval set -- "$ARGS"
 
