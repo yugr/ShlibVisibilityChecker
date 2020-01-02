@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 # 
-# Copyright (c) 2018-2019 Yury Gribov
+# Copyright (c) 2018-2020 Yury Gribov
 # 
 # Use of this source code is governed by The MIT License (MIT)
 # that can be found in the LICENSE.txt file.
@@ -8,6 +8,7 @@
 $(shell mkdir -p bin)
 
 LLVM_CONFIG ?= llvm-config-6.0
+DESTDIR ?= /usr/local/bin
 
 CXX = g++
 
@@ -29,21 +30,24 @@ ifneq (,$(UBSAN))
   LDFLAGS += -fsanitize=undefined
 endif
 
-all: bin/read_header_api bin/read_binary_api
+all: bin/read_header_api
+
+install:
+	install bin/read_header_api $(DESTDIR)
 
 check:
-	scripts/debiancheck libacl1
+	debiancheck libacl1
+
+pylint:
+	pylint shlibvischeck
 
 bin/read_header_api: bin/read_header_api.o
 	$(CXX) $(LDFLAGS) -o $@ $^ -lclang
-
-bin/read_binary_api: scripts/read_binary_api
-	cp $< $@
 
 bin/%.o: src/%.cc
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 clean:
-	rm -f bin/*
+	rm -f bin/* build dist *.egg-info
 
-.PHONY: check all
+.PHONY: check all install clean pylint

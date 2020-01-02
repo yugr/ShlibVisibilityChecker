@@ -1,0 +1,80 @@
+#!/usr/bin/python3
+
+# The MIT License (MIT)
+# 
+# Copyright 2018-2020 Yury Gribov
+# 
+# Use of this source code is governed by MIT license that can be
+# found in the LICENSE.txt file.
+
+import sys
+import os
+import os.path
+import re
+import argparse
+
+import shlibvischeck.common.error as e
+from shlibvischeck.analysis.debian import *
+
+def is_bad_pkg(pkg):
+  return re.search('^(libreoffice|glibc)', pkg)
+
+def main():
+  me = os.path.basename(__file__)
+  e.set_basename(me)
+  e.set_throw_on_error()
+
+  parser = argparse.ArgumentParser(description="Analyzes difference between public and binary interfaces in Debian packages.",
+                                   formatter_class=argparse.RawDescriptionHelpFormatter,
+                                   epilog="""\
+Examples:
+  $ {0} libacl1
+""".format(me))
+  parser.add_argument('--verbose', '-v',
+                      help="Print diagnostic info.",
+                      action='count', default=0)
+  parser.add_argument('--permissive', '-p',
+                      help="Ignore dummy symbols introduced by ld (_edata, __bss_start, etc.) "
+                           "and libgcc (_init, _fini).",
+                      dest='permissive', action='store_true', default=False)
+  parser.add_argument('--no-permissive',
+                      help="Disable --permissive (default).",
+                      dest='permissive', action='store_false')
+  parser.add_argument('rest',
+                      nargs=argparse.REMAINDER, default=[])
+
+  args = parser.parse_args()
+
+  total = fails = 0
+  failed_packages = []
+  processed_pkgs = set()
+
+  for pkg in args.rest:
+    src = get_pkg_attribute(pkg, 'Package', True, True)[0]
+    # TODO: handle errors
+    if src in processed_pkgs or is_bad_pkg(src):
+      continue
+    processed_pkgs.add(src)
+
+    total += 1
+    print("Processing package '%s'..." % pkg)
+
+    success = False
+    try:
+      if analyze_debian_package(pkg, args.permissive, args.verbose):
+        success = True
+    except:
+        import traceback
+        traceback.print_exc()
+    finally:
+      if not success:
+        print("Failed to analyze package '%s'." % pkg)
+        fails += 1
+        failed_packages.append(src)
+
+  if fails > 0:
+    print("%d packages failed (out of %d): %s" % (fails, total,
+                                                  ' '.join(failed_packages)))
+
+if __name__ == '__main__':
+  main()

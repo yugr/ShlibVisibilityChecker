@@ -1,0 +1,56 @@
+#!/usr/bin/python3
+
+# Copyright 2018-2020 Yury Gribov
+# 
+# Use of this source code is governed by MIT license that can be
+# found in the LICENSE.txt file.
+
+import sys
+import os
+import os.path
+import re
+import argparse
+
+import shlibvischeck.common.error as e
+import shlibvischeck.analysis.elf as elf
+
+def main():
+  me = os.path.basename(__file__)
+  e.set_basename(me)
+  e.set_throw_on_error()
+  parser = argparse.ArgumentParser(description="Reads binary APIs from a list of shlibs.",
+                                   formatter_class=argparse.RawDescriptionHelpFormatter,
+                                   epilog="""\
+Examples:
+  $ {0} /usr/lib/x86_64-linux-gnu/libaa.so.1
+  aa_ansi_format
+  aa_attrs
+  ...
+""".format(me))
+  parser.add_argument('--verbose', '-v',
+                      help="Print diagnostic info.",
+                      action='count', default=0)
+  parser.add_argument('--permissive', '-p',
+                      help="Ignore dummy symbols introduced by ld (_edata, __bss_start, etc.) "
+                           "and libgcc (_init, _fini).",
+                      dest='permissive', action='store_true', default=False)
+  parser.add_argument('--no-permissive',
+                      help="Disable --permissive (default).",
+                      dest='permissive', action='store_false')
+  parser.add_argument('--export', '-e',
+                      help="List exported symbols (default).",
+                      dest='export', action='store_true', default=True)
+  parser.add_argument('--import', '-i',
+                      help="List imported symbols.",
+                      dest='export', action='store_false')
+  parser.add_argument('shlib',
+                      help="Analyzed shared library.", metavar='SHLIB')
+
+  args = parser.parse_args()
+
+  names = elf.read_binary_api(args.shlib, args.export, args.permissive)
+  for name in names:
+    print(name)
+
+if __name__ == '__main__':
+  main()

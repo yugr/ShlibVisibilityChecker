@@ -1,2 +1,6 @@
+build
+dist
 bin/*
 .*.swp
+__pycache__
+*.egg-info
