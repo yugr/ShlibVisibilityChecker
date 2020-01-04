@@ -46,10 +46,10 @@ def _get_pkg_files(pkg):
   return list(filter(lambda f: not re.search(r'(\.gz|\.html?|\.)$', f),
                      out.split('\n')))
 
-# TODO: sys/types.h ?
 _stdinc = ['',
            '-include stdint.h -include stddef.h',
-           '-include stdio.h']
+           '-include stdio.h',
+           '-include sys/types.h']
 
 def _get_paths(lang):
   """ Returns standard compiler paths. """
@@ -77,8 +77,8 @@ def _get_cflags(files, v=0):
 
   def add_variants(f):
     for lang in [c_paths, cxx_paths + ' -x c++']:
-      for add_incs in ['', _stdinc]:
-        cflags.append(' '.join([lang, add_incs, f]))
+      for i in range(len(_stdinc) + 1):
+        cflags.append(' '.join([lang, f] + _stdinc[:i]))
 
   for pc in filter(lambda pkg: pkg.endswith('.pc'), files):
     stem, _ = os.path.splitext(os.path.basename(pc))
@@ -101,10 +101,13 @@ def analyze_debian_package(pkg, permissive, v=0):
       error("'%s' not installed" % exe)
 
   # Install all binary packages
+  def is_good_package(p):
+    return (not p.endswith('-udeb')
+            and not p.endswith('-doc')
+            and not p.endswith('-dbg')
+            and 'mingw-w64' not in p)
   pkgs = get_pkg_attribute(pkg, 'Binary', True, True)
-  pkgs = list(filter(lambda p: not p.endswith('-udeb'), pkgs))
-  pkgs = list(filter(lambda p: not p.endswith('-doc'), pkgs))
-  pkgs = list(filter(lambda p: not p.endswith('-dbg'), pkgs))
+  pkgs = list(filter(is_good_package, pkgs))
   dev_pkgs = list(filter(lambda p: p.endswith('-dev'), pkgs))
   if v > 0:
     print("%s packages: %s" % (pkg, ' '.join(pkgs)))
