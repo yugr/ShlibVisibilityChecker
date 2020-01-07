@@ -109,7 +109,6 @@ Major reasons for errors are
 Other issues:
 * TODOs are scattered all over the codebase
 * would be interesting to go over dependent packages and check if they use invalid symbols
-* the tool is much slower than needed (ideally needs to be rewritten in combination of Python and C++)
 
 # Trophies
 
