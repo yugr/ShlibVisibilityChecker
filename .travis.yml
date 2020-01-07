@@ -23,6 +23,7 @@ jobs:
             - libclang-6.0-dev
             - python3
             - python3-setuptools
+            - python3-wheel
     - name: clang-libclang6
       compiler: clang
       env:
@@ -37,3 +38,4 @@ jobs:
             - libclang-6.0-dev
             - python3
             - python3-setuptools
+            - python3-wheel
