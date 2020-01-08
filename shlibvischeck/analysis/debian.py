@@ -51,32 +51,13 @@ _stdinc = ['',
            '-include stdio.h',
            '-include sys/types.h']
 
-def _get_paths(lang):
-  """ Returns standard compiler paths. """
-#  cc = 'clang++-5.0'
-  cc = 'g++'
-  _, _, err = run('%s -E -v -x %s /dev/null' % (cc, lang))
-  in_paths = False
-  paths = []
-  for l in err.split('\n'):
-    if 'search starts here' in l:
-      in_paths = True
-    if 'End of search list' in l:
-      break
-    if in_paths and l[0] == ' ':
-      paths.append('-I' + l[1:])
-  return ' '.join(paths)
-
 def _get_cflags(files, v=0):
   """ Collect CFLAGS from pkgconfigs. """
 
   cflags = []
 
-  c_paths = _get_paths('c')
-  cxx_paths = _get_paths('c++')
-
   def add_variants(f):
-    for lang in [c_paths, cxx_paths + ' -x c++']:
+    for lang in ['', ' -x c++']:
       for i in range(len(_stdinc) + 1):
         cflags.append(' '.join([lang, f] + _stdinc[:i]))
 

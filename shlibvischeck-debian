@@ -7,6 +7,8 @@
 # Use of this source code is governed by MIT license that can be
 # found in the LICENSE.txt file.
 
+# Analyzes difference between public and binary interfaces in Debian packages.
+
 import sys
 import os
 import os.path

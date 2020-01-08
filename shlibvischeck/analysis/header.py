@@ -17,6 +17,9 @@ def read_header_api(hdr, whitelist, cflags, v=0):
   """ Returns functions declared in header
       (and included headers from whitelist). """
 
+  if not cflags:
+    cflags = ['']
+
   # Is this a helper header and so not intended for direct inclusion?
   is_helper = 'private' in hdr  # E.g. json_object_private.h
   for f in whitelist:

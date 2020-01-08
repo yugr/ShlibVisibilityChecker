@@ -23,7 +23,7 @@ setuptools.setup(
   long_description_content_type='text/markdown',
   url='https://github.com/yugr/ShlibVisibilityChecker',
   packages=setuptools.find_packages(),
-  scripts=['debiancheck', 'read_binary_api'],
+  scripts=['shlibvischeck-debian', 'shlibvischeck-common', 'read_binary_api'],
   install_requires=['python-magic'],
   classifiers=[
     'Programming Language :: Python :: 3',

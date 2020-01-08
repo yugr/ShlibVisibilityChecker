@@ -1,0 +1,62 @@
+#!/usr/bin/python3
+
+# The MIT License (MIT)
+# 
+# Copyright 2020 Yury Gribov
+# 
+# Use of this source code is governed by MIT license that can be
+# found in the LICENSE.txt file.
+
+# Analyzes difference between public and binary interfaces in package files.
+# Command-line equivalent:
+#   $ read_header_api --cflags="-I/usr/include -I$AUDIT_INSTALL/include -I/usr/lib/llvm-5.0/lib/clang/5.0.0/include" $AUDIT_INSTALL/include/*.h > public_api.txt
+#   $ read_binary_api --permissive $AUDIT_INSTALL/lib/*.so* > exported_api.txt
+#   $ comm -13 public_api.txt exported_api.txt
+
+import sys
+import os
+import os.path
+import re
+import argparse
+
+import shlibvischeck.common.error as e
+from shlibvischeck.analysis.package import *
+
+def main():
+  me = os.path.basename(__file__)
+  e.set_basename(me)
+  e.set_throw_on_error()
+
+  parser = argparse.ArgumentParser(description="Analyzes difference between public and binary interfaces in package files.",
+                                   formatter_class=argparse.RawDescriptionHelpFormatter,
+                                   epilog="""\
+Examples:
+  $ {0} *.h *.so*
+""".format(me))
+  parser.add_argument('--verbose', '-v',
+                      help="Print diagnostic info.",
+                      action='count', default=0)
+  parser.add_argument('--permissive', '-p',
+                      help="Ignore dummy symbols introduced by ld (_edata, __bss_start, etc.) "
+                           "and libgcc (_init, _fini).",
+                      dest='permissive', action='store_true', default=False)
+  parser.add_argument('--no-permissive',
+                      help="Disable --permissive (default).",
+                      dest='permissive', action='store_false')
+  parser.add_argument('--cflags', '-f',
+                      help="Compiler flags to use when parsing headers (may be specified more than once for separate trials).",
+                      action='append', default=[])
+  parser.add_argument('rest',
+                      nargs=argparse.REMAINDER, default=[])
+
+  args = parser.parse_args()
+
+  spurious_syms = analyze_package('<unknown>', args.rest, args.cflags, args.permissive, args.verbose)
+  if spurious_syms:
+    print("The following exported symbols are private:\n  %s"
+          % ('\n  '.join(spurious_syms)))
+  else:
+    print("No private exports")
+
+if __name__ == '__main__':
+  main()

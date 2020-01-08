@@ -15,6 +15,29 @@ from shlibvischeck.analysis.header import *
 from shlibvischeck.analysis.elf import *
 from shlibvischeck.common.error import error
 
+def _get_paths(lang):
+  """ Returns standard compiler paths. """
+  p = _get_paths.cache.get(lang)
+  if p is not None:
+      return p
+#  cc = 'clang-5.0'
+  cc = 'gcc'
+  _, _, err = run('%s -E -v -x %s /dev/null' % (cc, lang))
+  in_paths = False
+  paths = []
+  for l in err.split('\n'):
+    if 'search starts here' in l:
+      in_paths = True
+    if 'End of search list' in l:
+      break
+    if in_paths and l[0] == ' ':
+      paths.append('-I' + l[1:])
+  p = ' '.join(paths)
+  _get_paths.cache[lang] = p
+  return p
+
+_get_paths.cache = {}
+
 def analyze_package(pkg, files, cflags, permissive, v=0):
   """ Returns erroneously exported private symbols in package shlibs. """
 
@@ -44,10 +67,15 @@ def analyze_package(pkg, files, cflags, permissive, v=0):
     print("Package headers: %s" % ' '.join(hdrs))
     print("Package shlibs: %s" % ' '.join(shlibs))
 
+  # Need to add std paths
+  c_paths = _get_paths('c')
+  cxx_paths = _get_paths('c++')
+  full_cflags = list(map(lambda f: (cxx_paths if 'c++' in f else c_paths) + ' ' +  f, cflags))
+
   # Collect header interfaces
   public_api = set()
   for h in hdrs:
-    public_api.update(read_header_api(h, hdrs, cflags, v))
+    public_api.update(read_header_api(h, hdrs, full_cflags, v))
 
   # Collect binary interfaces
   exported_api = set()

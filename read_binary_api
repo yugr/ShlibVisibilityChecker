@@ -5,6 +5,8 @@
 # Use of this source code is governed by MIT license that can be
 # found in the LICENSE.txt file.
 
+# Reads binary APIs from a list of shlibs.
+
 import sys
 import os
 import os.path

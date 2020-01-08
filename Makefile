@@ -36,7 +36,7 @@ install:
 	install bin/read_header_api $(DESTDIR)
 
 check:
-	debiancheck libacl1
+	shlibvischeck-debian libacl1
 
 pylint:
 	pylint shlibvischeck
