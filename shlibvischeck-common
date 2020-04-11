@@ -13,10 +13,8 @@
 #   $ read_binary_api --permissive $AUDIT_INSTALL/lib/*.so* > exported_api.txt
 #   $ comm -13 public_api.txt exported_api.txt
 
-import sys
 import os
 import os.path
-import re
 import argparse
 
 import shlibvischeck.common.error as e

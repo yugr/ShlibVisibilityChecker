@@ -16,8 +16,9 @@ def warn(msg):
 
 def error(msg):
   sys.stderr.write("%s: error: %s\n" % (_me, msg))
+  global _except
   if _except:
-    raise StandardError
+    raise RuntimeError
   sys.exit(1)
 
 def set_basename(name):
