@@ -13,6 +13,8 @@ from shlibvischeck.common.error import error
 from shlibvischeck.common.process import *
 from shlibvischeck.analysis.package import *
 
+__all__ = ['get_pkg_attribute', 'analyze_debian_package']
+
 def _get_installed_packages():
   """ Returns installed Debian packages. """
   pkgs = set()

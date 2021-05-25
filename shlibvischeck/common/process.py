@@ -9,6 +9,8 @@ import subprocess
 
 from shlibvischeck.common.error import error
 
+__all__ = ['run', 'is_runnable']
+
 def run(cmd, fatal=True):
   """ Simple wrapper for subprocess. """
 

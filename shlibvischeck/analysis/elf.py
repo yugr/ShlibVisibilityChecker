@@ -11,6 +11,8 @@ import subprocess
 from shlibvischeck.common.process import *
 from shlibvischeck.common.error import error
 
+__all__ = ['read_binary_api']
+
 def readelf(filename):
   """ Returns symbol table of ELF file, """
 

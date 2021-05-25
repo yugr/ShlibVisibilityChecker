@@ -12,6 +12,8 @@ import re
 from shlibvischeck.common.process import *
 from shlibvischeck.common.error import error
 
+__all__ = ['read_header_api']
+
 def read_header_api(hdr, whitelist, cflags, v=0):
   """ Returns functions declared in header
       (and included headers from whitelist). """

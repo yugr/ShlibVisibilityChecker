@@ -14,6 +14,8 @@ from shlibvischeck.analysis.header import *
 from shlibvischeck.analysis.elf import *
 from shlibvischeck.common.error import error
 
+__all__ = ['analyze_package']
+
 def _get_paths(lang):
   """ Returns standard compiler paths. """
   p = _get_paths.cache.get(lang)
