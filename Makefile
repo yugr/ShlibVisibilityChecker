@@ -7,7 +7,7 @@
 
 $(shell mkdir -p bin)
 
-LLVM_CONFIG ?= llvm-config-6.0
+LLVM_CONFIG ?= llvm-config
 DESTDIR ?= /usr/local/bin
 
 CXX = g++
@@ -33,6 +33,7 @@ endif
 all: bin/read_header_api
 
 install:
+	mkdir -p $(DESTDIR)
 	install bin/read_header_api $(DESTDIR)
 
 check:

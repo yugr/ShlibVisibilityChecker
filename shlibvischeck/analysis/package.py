@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 # 
-# Copyright (c) 2020 Yury Gribov
+# Copyright (c) 2021 Yury Gribov
 # 
 # Use of this source code is governed by The MIT License (MIT)
 # that can be found in the LICENSE.txt file.
@@ -13,6 +13,7 @@ import magic
 from shlibvischeck.analysis.header import *
 from shlibvischeck.analysis.elf import *
 from shlibvischeck.common.error import error
+from shlibvischeck.common.process import run
 
 __all__ = ['analyze_package']
 
