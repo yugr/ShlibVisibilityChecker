@@ -26,4 +26,5 @@ def set_basename(name):
   _me = name
 
 def set_throw_on_error(v=True):
+  global _except
   _except = v
