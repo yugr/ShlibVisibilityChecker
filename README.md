@@ -1,5 +1,5 @@
 [![License](http://img.shields.io/:license-MIT-blue.svg)](https://github.com/yugr/ShlibVisibilityChecker/blob/master/LICENSE.txt)
-[![Build Status](https://travis-ci.org/yugr/ShlibVisibilityChecker.svg?branch=master)](https://travis-ci.org/yugr/ShlibVisibilityChecker)
+[![Build Status](https://github.com/yugr/ShlibVisibilityChecker/actions/workflows/ci.yml/badge.svg)](https://github.com/yugr/ShlibVisibilityChecker/actions)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/yugr/ShlibVisibilityChecker.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/yugr/ShlibVisibilityChecker/alerts/)
 
 # What's this?

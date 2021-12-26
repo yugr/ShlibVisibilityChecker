@@ -1,0 +1,33 @@
+# TODO:
+# * run tests
+# * coverage
+# * analyzers: sanitizers, valgrind, Coverity Scan, CSA
+# * deploy
+
+name: CI
+on:
+  push:
+    paths-ignore:
+    - 'LICENSE.txt'
+    - 'README.md'
+  pull_request:
+    paths-ignore:
+    - 'LICENSE.txt'
+    - 'README.md'
+jobs:
+  Baseline:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-latest]
+        cxx: [g++, clang++]
+    runs-on: ${{ matrix.os }}
+    env:
+      CXX: ${{ matrix.cxx }}
+      LLVM_CONFIG: llvm-config
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      run: sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+    - name: Run tests
+      run: scripts/travis.sh

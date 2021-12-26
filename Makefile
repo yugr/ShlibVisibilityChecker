@@ -10,7 +10,7 @@ $(shell mkdir -p bin)
 LLVM_CONFIG ?= llvm-config
 DESTDIR ?= /usr/local/bin
 
-CXX = g++
+CXX ?= g++
 
 CXXFLAGS = $(shell $(LLVM_CONFIG) --cflags) -std=c++11 -g -Wall -Wextra -Werror
 LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags)
