@@ -1,5 +1,6 @@
 [![License](http://img.shields.io/:license-MIT-blue.svg)](https://github.com/yugr/ShlibVisibilityChecker/blob/master/LICENSE.txt)
 [![Build Status](https://github.com/yugr/ShlibVisibilityChecker/actions/workflows/ci.yml/badge.svg)](https://github.com/yugr/ShlibVisibilityChecker/actions)
+[![codecov](https://codecov.io/gh/yugr/ShlibVisibilityChecker/branch/master/graph/badge.svg)](https://codecov.io/gh/yugr/ShlibVisibilityChecker)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/yugr/ShlibVisibilityChecker.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/yugr/ShlibVisibilityChecker/alerts/)
 [![Coverity Scan](https://scan.coverity.com/projects/yugr-ShlibVisibilityChecker/badge.svg)](https://scan.coverity.com/projects/yugr-ShlibVisibilityChecker)
 
