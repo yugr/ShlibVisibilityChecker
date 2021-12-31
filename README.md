@@ -82,6 +82,13 @@ $ sudo apt-get install python3 clang llvm libclang-dev g++ make aptitude
 $ sudo python3 -mensurepip
 $ sudo pip3 install setuptools python-magic
 ```
+(you could also use script `scripts/install-deps.sh`).
+
+You also need to enable access to Ubuntu source packages via
+```
+$ sudo sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
+$ sudo apt-get update
+```
 
 Python and binary components are built separately:
 ```
