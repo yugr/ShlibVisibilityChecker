@@ -1,6 +1,7 @@
 # TODO:
 # * analyzers: valgrind, CSA
-# * deploy
+# * proper deploy (with dependencies, etc.)
+# * more tests (70% coverage)
 
 name: CI
 on:
