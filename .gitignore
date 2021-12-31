@@ -4,3 +4,4 @@ bin/*
 .*.swp
 __pycache__
 *.egg-info
+.gdb_history
