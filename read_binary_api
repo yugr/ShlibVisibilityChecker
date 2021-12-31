@@ -43,13 +43,17 @@ Examples:
   parser.add_argument('--import', '-i',
                       help="List imported symbols.",
                       dest='export', action='store_false')
-  parser.add_argument('shlib',
-                      help="Analyzed shared library.", metavar='SHLIB')
+  parser.add_argument('shlibs',
+                      help="Analyzed shared library.", metavar='SHLIB...',
+                      nargs=argparse.REMAINDER, default=[])
 
   args = parser.parse_args()
 
-  names = elf.read_binary_api(args.shlib, args.export, args.permissive)
-  for name in names:
+  all_names = set()
+  for shlib in args.shlibs:
+    names = elf.read_binary_api(shlib, args.export, args.permissive)
+    all_names.update(names)
+  for name in sorted(all_names):
     print(name)
 
 if __name__ == '__main__':
