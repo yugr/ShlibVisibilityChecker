@@ -221,6 +221,7 @@ int main(int argc, char *argv[]) {
       OnlyHdrs.insert(RealPath(argv[I]));
   }
 
+  std::set<std::string> Names;
   for (int I = optind; I < argc; ++I) {
     std::string Hdr = argv[I];
 
@@ -269,16 +270,15 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    std::set<std::string> Names;
     for (auto &Sym : Info.Syms)
       Names.insert(Sym.MangledName);
-
-    for (auto &Name : Names)
-      printf("%s\n", Name.c_str());
 
     clang_disposeTranslationUnit(Unit);
     clang_disposeIndex(Idx);
   }
+
+  for (auto &Name : Names)
+    printf("%s\n", Name.c_str());
 
   return 0;
 }
