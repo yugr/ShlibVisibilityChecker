@@ -16,7 +16,8 @@ __all__ = ['read_binary_api']
 def readelf(filename):
   """ Returns symbol table of ELF file, """
 
-  p = subprocess.Popen(["readelf", "-sW", "--dyn-syms", filename],
+  # TODO: investigate why --dyn-syms reports both static and dynamic symtabs; is -D what we need?
+  p = subprocess.Popen(["readelf", "-sWD", filename],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   out, err = p.communicate()
   out = out.decode()
