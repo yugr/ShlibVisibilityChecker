@@ -135,6 +135,7 @@ Options:\n\
   -r ROOT, --root ROOT       Only consider symbols which are defined\n\
                              in files under ROOT.\n\
   --only A.H,B.H,...         Report only functions in these headers.\n\
+  --only-args                Report only functions in HDRs\n\
 ", prog);
   exit(0);
 }
@@ -145,6 +146,7 @@ int main(int argc, char *argv[]) {
   std::string Flags, Root;
   std::set<std::string> OnlyHdrs;
   int Verbose = 0;
+  bool OnlyArgs = false;
   while (1) {
     static struct option long_opts[] = {
       {"verbose", no_argument, 0, 'v'},
@@ -153,6 +155,8 @@ int main(int argc, char *argv[]) {
       {"help", required_argument, 0, 'h'},
 #     define OPT_ONLY 1
       {"only", required_argument, 0, OPT_ONLY},
+#     define OPT_ONLY_ARGS 2
+      {"only-args", no_argument, 0, OPT_ONLY_ARGS},
     };
 
     int opt_index = 0;
@@ -187,6 +191,10 @@ int main(int argc, char *argv[]) {
         }
         break;
       }
+    case OPT_ONLY_ARGS:
+      OnlyArgs = true;
+      OnlyHdrs.clear();
+      break;
     default:
       abort();
     }
@@ -206,6 +214,11 @@ int main(int argc, char *argv[]) {
   if (optind >= argc) {
     fprintf(stderr, "error: no headers specified in command line...");
     return 0;
+  }
+
+  if (OnlyArgs) {
+    for (int I = optind; I < argc; ++I)
+      OnlyHdrs.insert(RealPath(argv[I]));
   }
 
   for (int I = optind; I < argc; ++I) {
