@@ -1,7 +1,6 @@
 # TODO:
-# * tests
 # * coverage
-# * analyzers: sanitizers, valgrind, CSA
+# * analyzers: valgrind, CSA
 # * deploy
 
 name: CI
@@ -25,6 +24,30 @@ jobs:
     env:
       CXX: ${{ matrix.cxx }}
       LLVM_CONFIG: llvm-config
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      run: sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+    - name: Run tests
+      run: scripts/travis.sh
+  Asan:
+    runs-on: ubuntu-latest
+    env:
+      CXX: clang++
+      LLVM_CONFIG: llvm-config
+      ASAN: 1
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      run: sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+    - name: Run tests
+      run: scripts/travis.sh
+  UBsan:
+    runs-on: ubuntu-latest
+    env:
+      CXX: clang++
+      LLVM_CONFIG: llvm-config
+      UBSAN: 1
     steps:
     - uses: actions/checkout@v2
     - name: Install deps
