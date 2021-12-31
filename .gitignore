@@ -1,7 +1,18 @@
+# Python files
 build
 dist
-bin/*
 .*.swp
 __pycache__
 *.egg-info
+
+# C++ binaries
+bin/*
+
+# GDB temp files
 .gdb_history
+
+# Test temp files
+api.txt
+abi.txt
+api_abi.diff
+*.so

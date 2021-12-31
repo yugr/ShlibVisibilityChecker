@@ -10,6 +10,12 @@
 set -eu
 set -x
 
+# Build
+
 make "$@" clean all
 ./setup.py build
 ./setup.py bdist_wheel
+
+# Run tests
+
+test/basic/run.sh
