@@ -19,6 +19,7 @@ make "$@" clean all
 # Run tests
 
 test/basic/run.sh
+test/debian/run.sh
 
 # Upload coverage
 if test -n "${CODECOV_TOKEN:-}"; then

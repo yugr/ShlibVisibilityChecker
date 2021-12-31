@@ -27,7 +27,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install deps
-      run: sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+      run: |
+        sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+        sudo python3 -m pip install python-magic
     - name: Run tests
       run: scripts/travis.sh
   Asan:
@@ -39,7 +41,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install deps
-      run: sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+      run: |
+        sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+        sudo python3 -m pip install python-magic
     - name: Run tests
       run: scripts/travis.sh
   UBsan:
@@ -51,7 +55,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install deps
-      run: sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+      run: |
+        sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+        sudo python3 -m pip install python-magic
     - name: Run tests
       run: scripts/travis.sh
   Coverity:
@@ -60,7 +66,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install deps
-      run: sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+      run: |
+        sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+        sudo python3 -m pip install python-magic
     - uses: vapier/coverity-scan-action@v0
       with:
         project: yugr%2FShlibVisibilityChecker
@@ -77,7 +85,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install deps
       run: |
-        sudo pip3 install codecov
+        sudo python3 -m pip install python-magic codecov
         sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
     - name: Run tests and upload coverage
       run: scripts/travis.sh

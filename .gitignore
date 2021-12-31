@@ -17,3 +17,4 @@ abi.txt
 api_abi.diff
 *.so
 codecov.bash
+out.log
