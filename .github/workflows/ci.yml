@@ -1,7 +1,7 @@
 # TODO:
-# * run tests
+# * tests
 # * coverage
-# * analyzers: sanitizers, valgrind, Coverity Scan, CSA
+# * analyzers: sanitizers, valgrind, CSA
 # * deploy
 
 name: CI
@@ -31,3 +31,14 @@ jobs:
       run: sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
     - name: Run tests
       run: scripts/travis.sh
+  Coverity:
+    runs-on: ubuntu-latest
+    environment: secrets
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      run: sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+    - uses: vapier/coverity-scan-action@v0
+      with:
+        project: yugr%2FShlibVisibilityChecker
+        token: ${{ secrets.COVERITY_SCAN_TOKEN }}
