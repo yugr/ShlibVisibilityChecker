@@ -20,12 +20,14 @@ fi
 CFLAGS='-g -O2 -Wall -Wextra -Werror -shared -fPIC'
 
 T=$PWD
+ROOT=$T/../..
+PATH=$ROOT/bin:$PATH
 
 PKGS=libbz2-1.0
 
 errors=0
 for pkg in $PKGS; do
-  (cd $T/../.. && ./shlibvischeck-debian $pkg) > out.log
+  (cd $ROOT && ./shlibvischeck-debian $pkg) > out.log
 
   if ! diff -q $pkg.ref out.log; then
     echo >&2 "Invalid results for package"
