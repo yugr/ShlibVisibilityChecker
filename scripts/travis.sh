@@ -19,3 +19,15 @@ make "$@" clean all
 # Run tests
 
 test/basic/run.sh
+
+# Upload coverage
+if test -n "${CODECOV_TOKEN:-}"; then
+  for t in tests/*; do
+    if test -d $t; then
+      (cd $t && coverage xml)
+    fi
+  done
+  curl --retry 5 -s https://codecov.io/bash > codecov.bash
+  bash -x codecov.bash -Z
+  find -name \*.gcda -o -name \*.gcno -o -name \*.gcov -o -name \*.xml | xargs rm
+fi

@@ -15,6 +15,11 @@ CXX ?= g++
 CXXFLAGS = $(shell $(LLVM_CONFIG) --cflags) -std=c++11 -g -Wall -Wextra -Werror
 LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags)
 
+ifneq (,$(COVERAGE))
+  DEBUG = 1
+  CXXFLAGS += --coverage -DNDEBUG
+  LDFLAGS += --coverage
+endif
 ifeq (,$(DEBUG))
   CXXFLAGS += -O2
   LDFLAGS += -Wl,-O2
@@ -49,6 +54,6 @@ bin/%.o: src/%.cc
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 clean:
-	rm -f bin/* build dist *.egg-info
+	rm -rf bin/* build dist *.egg-info
 
 .PHONY: check all install clean pylint

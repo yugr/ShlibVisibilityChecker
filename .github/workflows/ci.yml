@@ -66,3 +66,18 @@ jobs:
         project: yugr%2FShlibVisibilityChecker
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}
         email: ${{ secrets.EMAIL }}
+  Coverage:
+    runs-on: ubuntu-latest
+    environment: secrets
+    env:
+      COVERAGE: 1
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      PYTHON: 'coverage run -a'
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      run: |
+        sudo pip3 install codecov
+        sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel
+    - name: Run tests and upload coverage
+      run: scripts/travis.sh
