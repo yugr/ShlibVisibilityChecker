@@ -10,6 +10,6 @@
 set -eu
 set -x
 
-make clean all
+make "$@" clean all
 ./setup.py build
 ./setup.py bdist_wheel
