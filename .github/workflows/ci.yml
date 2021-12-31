@@ -42,3 +42,4 @@ jobs:
       with:
         project: yugr%2FShlibVisibilityChecker
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}
+        email: ${{ secrets.EMAIL }}
