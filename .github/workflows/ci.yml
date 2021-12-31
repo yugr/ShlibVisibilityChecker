@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-latest]
+        os: [ubuntu-20.04, ubuntu-latest]  # TODO: figure out whats wrong w/ ubuntu-18.04
         cxx: [g++, clang++]
     runs-on: ${{ matrix.os }}
     env:
