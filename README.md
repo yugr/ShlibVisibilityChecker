@@ -31,8 +31,17 @@ with visibility is in modern distros).
 
 # How to use
 
-The main tool is `shlibvischeck-debian` script which locates symbols that are exported from
-Debian package's shared libraries but are not declared in it's headers.
+To check a raw package, i.e. a bunch of headers and shared libs,
+collect source and binary interfaces and compare them:
+```
+$ bin/read_header_api --only-args /usr/include/xcb/* > abi.txt
+$ ./read_binary_api --permissive /usr/lib/x86_64-linux-gnu/libxcb*.so > api.txt
+$ vimdiff api.txt abi.txt
+```
+
+Another useful scenario is locating symbols that are exported from
+Debian package's shared libraries but are not declared in it's headers
+The main tool for this is a `shlibvischeck-debian` script.
 
 To apply it to a package, run
 ```
