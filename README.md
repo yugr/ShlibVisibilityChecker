@@ -35,8 +35,8 @@ with visibility is in modern distros).
 To check a raw package, i.e. a bunch of headers and shared libs,
 collect source and binary interfaces and compare them:
 ```
-$ bin/read_header_api --only-args /usr/include/xcb/* > abi.txt
-$ ./read_binary_api --permissive /usr/lib/x86_64-linux-gnu/libxcb*.so > api.txt
+$ bin/read_header_api --only-args /usr/include/xcb/* > api.txt
+$ ./read_binary_api --permissive /usr/lib/x86_64-linux-gnu/libxcb*.so > abi.txt
 $ vimdiff api.txt abi.txt
 ```
 
