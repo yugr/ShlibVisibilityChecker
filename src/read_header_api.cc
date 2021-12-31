@@ -44,6 +44,10 @@ static std::string ToStr(CXString CXS) {
 
 static std::string RealPath(const char *p) {
   char *tmp = realpath(p, 0);
+  if (!tmp) {
+    fprintf(stderr, "File %s not found\n", p);
+    exit(1);
+  }
   std::string Res(tmp);
   free(tmp);
   return Res;
