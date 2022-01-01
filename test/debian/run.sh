@@ -7,7 +7,8 @@
 # Use of this source code is governed by MIT license that can be
 # found in the LICENSE.txt file.
 
-# This is a simple test for ShlibVisibilityChecker functionality.
+# This is a test for Debian package functionality:
+# verify that libbz2 has extra symbols in its inteface.
 
 set -eu
 
@@ -23,6 +24,7 @@ T=$PWD
 ROOT=$T/../..
 PATH=$ROOT/bin:$PATH
 
+# Debian #896750 will likely never be fixed
 PKGS=libbz2-1.0
 
 errors=0
