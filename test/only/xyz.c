@@ -1,4 +1,4 @@
-/*                                                                                                                                                            * Copyright 2021 Yury Gribov
+/*                                                                                                                                                            * Copyright 2022 Yury Gribov
  *
  * The MIT License (MIT)
  *▫
