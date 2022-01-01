@@ -27,7 +27,7 @@ else
   CXXFLAGS += -O0
 endif
 ifneq (,$(ASAN))
-  CXXFLAGS += -fsanitize=address -fsanitize-address-use-after-scope -U_FORTIFY_SOURCE -fno-common -D_GLIBCXX_DEBUG
+  CXXFLAGS += -fsanitize=address -fsanitize-address-use-after-scope -U_FORTIFY_SOURCE -fno-common -D_GLIBCXX_DEBUG -D_GLIBCXX_SANITIZE_VECTOR
   LDFLAGS += -fsanitize=address
 endif
 ifneq (,$(UBSAN))
