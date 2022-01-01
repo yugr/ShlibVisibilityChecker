@@ -20,7 +20,10 @@ make "$@" clean all
 
 if test -n "${VALGRIND:-}"; then
   mv bin/read_header_api bin/read_header_api.real
-  echo 'valgrind $(dirname $0)/read_header_api.real "$@"' > bin/read_header_api
+  cat > bin/read_header_api <<'EOF'
+#!/bin/sh
+valgrind $0.real "$@"
+EOF
   chmod +x bin/read_header_api
 fi
 
