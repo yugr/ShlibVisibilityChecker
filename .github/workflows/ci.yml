@@ -69,6 +69,7 @@ jobs:
     - name: Run tests
       run: scripts/travis.sh
   Coverity:
+    needs: Baseline
     runs-on: ubuntu-latest
     environment: secrets
     steps:
@@ -81,6 +82,7 @@ jobs:
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}
         email: ${{ secrets.EMAIL }}
   Coverage:
+    needs: Baseline
     runs-on: ubuntu-latest
     environment: secrets
     env:
