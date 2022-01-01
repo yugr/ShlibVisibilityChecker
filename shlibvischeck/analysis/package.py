@@ -50,7 +50,7 @@ def analyze_package(pkg, files, cflags, permissive, v=0):
   for f in files:
     if os.path.isfile(f):
       _, ext = os.path.splitext(f)
-      if ext in ['.h', '.hpp', '.H']:
+      if ext in {'.h', '.hpp', '.H'}:
         hdrs.append(f)
       typ = magic.from_file(f)
       if (re.search(r'^ELF.*shared object', typ)

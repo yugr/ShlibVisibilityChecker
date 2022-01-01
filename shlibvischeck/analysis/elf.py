@@ -59,10 +59,10 @@ def readelf(filename):
   return syms
 
 # These symbols are exported by nearly all shlibs
-# due to bugs in GNU toolchain.
-_spurious_syms = ['__bss_start, _edata, _init, _fini, _etext, __etext, _end']
+# due to bugs in older (?) GNU toolchains.
+_spurious_syms = {'__bss_start', '_edata', '_init', '_fini', '_etext', '__etext', '_end'}
 
-def read_binary_api(filename, export, permissive, v=0):
+def read_binary_api(filename, export, disallow_spurious, v=0):
   """ Returns functions exported from shlib. """
 
   syms = readelf(filename)
@@ -76,7 +76,7 @@ def read_binary_api(filename, export, permissive, v=0):
     if (name
         and ndx != 'ABS'
         and export == is_defined
-        and (permissive or name not in _spurious_syms)
+        and (not disallow_spurious or name not in _spurious_syms)
         and (s['Version'] is None or allow_versioned or s['Default'])):
       output_syms.append(name)
   output_syms = sorted(output_syms)
