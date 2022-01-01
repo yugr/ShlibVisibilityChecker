@@ -38,7 +38,7 @@ collect source and binary interfaces and compare them:
 ```
 $ bin/read_header_api --only-args /usr/include/xcb/* > api.txt
 $ ./read_binary_api --permissive /usr/lib/x86_64-linux-gnu/libxcb*.so > abi.txt
-$ vimdiff api.txt abi.txt
+$ vimdiff api.txt abi.txt  # Or `comm -13 api.txt abi.txt'
 ```
 
 Another useful scenario is locating symbols that are exported from
