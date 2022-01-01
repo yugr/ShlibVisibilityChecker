@@ -31,7 +31,7 @@ for name_flags in 'a;-DA' 'b;-DB' 'ab;-DA -DB'; do
   ${CC:-gcc} $CFLAGS $flags -shared -fPIC xyz.c -o libxyz.so
   ${PYTHON:-python3} $ROOT/read_binary_api --permissive libxyz.so > abi.txt
 
-  (diff api.txt abi.txt || true) > api_abi.diff
+  (comm -3 api.txt abi.txt || true) > api_abi.diff
   if ! diff -q $name.ref api_abi.diff; then
     echo >&2 "Invalid results for test $name"
     diff $name.ref api_abi.diff >&2

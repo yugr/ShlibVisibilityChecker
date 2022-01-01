@@ -27,7 +27,7 @@ ${CC:-gcc} $CFLAGS -shared -fPIC xyz.c -o libxyz.so
 ${PYTHON:-python3} $ROOT/read_binary_api --permissive libxyz.so > abi.txt
 
 $ROOT/bin/read_header_api -r. --only xyz.h xyz.h > api.txt
-(diff api.txt abi.txt || true) > api_abi.diff
+(comm -3 api.txt abi.txt || true) > api_abi.diff
 if ! diff -q out.ref api_abi.diff; then
   echo >&2 "Invalid results for --only test"
   diff $name.ref api_abi.diff >&2
@@ -35,7 +35,7 @@ if ! diff -q out.ref api_abi.diff; then
 fi
 
 $ROOT/bin/read_header_api -r. --only-args xyz.h xyz.h > api.txt
-(diff api.txt abi.txt || true) > api_abi.diff
+(comm -3 api.txt abi.txt || true) > api_abi.diff
 if ! diff -q out.ref api_abi.diff; then
   echo >&2 "Invalid results for --only test"
   diff $name.ref api_abi.diff >&2
