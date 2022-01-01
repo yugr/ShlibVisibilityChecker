@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 # 
-# Copyright (c) 2018-2021 Yury Gribov
+# Copyright (c) 2018-2022 Yury Gribov
 # 
 # Use of this source code is governed by The MIT License (MIT)
 # that can be found in the LICENSE.txt file.
@@ -27,12 +27,12 @@ else
   CXXFLAGS += -O0
 endif
 ifneq (,$(ASAN))
-  CXXFLAGS += -fsanitize=address
+  CXXFLAGS += -fsanitize=address -fsanitize-address-use-after-scope -U_FORTIFY_SOURCE -fno-common
   LDFLAGS += -fsanitize=address
 endif
 ifneq (,$(UBSAN))
-  CXXFLAGS += -fsanitize=undefined
-  LDFLAGS += -fsanitize=undefined
+  CXXFLAGS += -fsanitize=undefined,integer
+  LDFLAGS += -fsanitize=undefined,integer
 endif
 
 all: bin/read_header_api
