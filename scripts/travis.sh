@@ -2,7 +2,7 @@
 
 # The MIT License (MIT)
 # 
-# Copyright (c) 2018-2021 Yury Gribov
+# Copyright (c) 2018-2022 Yury Gribov
 # 
 # Use of this source code is governed by The MIT License (MIT)
 # that can be found in the LICENSE.txt file.
@@ -10,11 +10,19 @@
 set -eu
 set -x
 
+cd $(dirname $0)/..
+
 # Build
 
 make "$@" clean all
 ./setup.py build
 ./setup.py bdist_wheel
+
+if test -n "${VALGRIND:-}"; then
+  mv bin/read_header_api bin/read_header_api.real
+  echo 'valgrind $(dirname $0)/read_header_api.real "$@"' > bin/read_header_api
+  chmod +x bin/read_header_api
+fi
 
 # Run tests
 

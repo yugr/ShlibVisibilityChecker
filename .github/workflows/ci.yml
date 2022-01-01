@@ -1,5 +1,4 @@
 # TODO:
-# * analyzers: valgrind, CSA
 # * proper deploy (with dependencies, etc.)
 # * more tests (70% coverage)
 # * add Python coverage
@@ -53,6 +52,19 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install deps
       run: scripts/install-deps.sh
+    - name: Run tests
+      run: scripts/travis.sh
+  Valgrind:
+    runs-on: ubuntu-latest
+    env:
+      LLVM_CONFIG: llvm-config
+      VALGRIND: 1
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      run: |
+        scripts/install-deps.sh
+        sudo apt-get install valgrind
     - name: Run tests
       run: scripts/travis.sh
   Coverity:
