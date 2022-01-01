@@ -227,7 +227,8 @@ int main(int argc, char *argv[]) {
 
     CXIndex Idx = clang_createIndex(0, 0);
     CXTranslationUnit Unit = clang_parseTranslationUnit(
-      Idx, Hdr.c_str(), &FlagsArray[0], FlagsArray.size(), 0, 0, CXTranslationUnit_None);
+      Idx, Hdr.c_str(), FlagsArray.empty() ? 0 : &FlagsArray[0],
+      FlagsArray.size(), 0, 0, CXTranslationUnit_None);
     if (!Unit) {
       fprintf(stderr, "error: failed to read file %s\n", Hdr.c_str());
       exit(1);
