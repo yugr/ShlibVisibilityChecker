@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 # 
-# Copyright 2020-2021 Yury Gribov
+# Copyright 2020-2022 Yury Gribov
 # 
 # Use of this source code is governed by MIT license that can be
 # found in the LICENSE.txt file.
@@ -16,8 +16,8 @@ __all__ = ['read_binary_api']
 def readelf(filename):
   """ Returns symbol table of ELF file, """
 
-  # TODO: investigate why --dyn-syms reports both static and dynamic symtabs; is -D what we need?
-  p = subprocess.Popen(["readelf", "-sWD", filename],
+  # --dyn-syms does not always work for some reason so dump all symtabs
+  p = subprocess.Popen(["readelf", "-sW", filename],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   out, err = p.communicate()
   out = out.decode()
@@ -30,6 +30,8 @@ def readelf(filename):
   for line in out.splitlines():
     line = line.strip()
     if not line:
+      # Next symtab
+      toc = None
       continue
     words = re.split(r' +', line)
     if line.startswith('Num'):  # Header?
@@ -72,10 +74,11 @@ def read_binary_api(filename, export, disallow_spurious, v=0):
     name = s['Name']
     ndx = s['Ndx']
     is_defined = ndx != 'UND'
+    is_exported = s['Bind'] != 'LOCAL' and s['Type'] != 'NOTYPE'
     allow_versioned = not export  # If symbol is imported, we do not consider it's version
     if (name
         and ndx != 'ABS'
-        and export == is_defined
+        and (is_defined and is_exported if export else not is_defined)
         and (not disallow_spurious or name not in _spurious_syms)
         and (s['Version'] is None or allow_versioned or s['Default'])):
       output_syms.append(name)
