@@ -19,13 +19,17 @@ make "$@" clean all
 ./setup.py bdist_wheel
 
 if test -n "${VALGRIND:-}"; then
-  mv bin/read_header_api bin/read_header_api.real
-  cat > bin/read_header_api <<'EOF'
+  cp -r bin bin-real
+  for f in $(find bin -type f -a -executable); do
+    cat > $f <<EOF
 #!/bin/sh
-valgrind $0.real "$@"
+valgrind -q $PWD/bin-real/$(basename $f) "\$@"
 EOF
-  chmod +x bin/read_header_api
+    chmod +x $f
+  done
 fi
+
+export ASAN_OPTIONS='detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1'
 
 # Run tests
 
