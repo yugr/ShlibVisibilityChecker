@@ -31,8 +31,14 @@ ifneq (,$(ASAN))
   LDFLAGS += -fsanitize=address
 endif
 ifneq (,$(UBSAN))
-  CXXFLAGS += -fsanitize=undefined,integer
-  LDFLAGS += -fsanitize=undefined,integer
+  ifneq (,$(shell $(CXX) --version | grep clang))
+    # Isan is clang-only...
+    CXXFLAGS += -fsanitize=undefined,integer -fno-sanitize-recover=undefined,integer
+    LDFLAGS += -fsanitize=undefined,integer -fno-sanitize-recover=undefined,integer
+  else
+    CXXFLAGS += -fsanitize=undefined -fno-sanitize-recover=undefined
+    LDFLAGS += -fsanitize=undefined -fno-sanitize-recover=undefined
+  endif
 endif
 
 all: bin/read_header_api
