@@ -23,7 +23,7 @@ if test -n "${VALGRIND:-}"; then
   for f in $(find bin -type f -a -executable); do
     cat > $f <<EOF
 #!/bin/sh
-valgrind -q $PWD/bin-real/$(basename $f) "\$@"
+valgrind -q --error-exitcode=1 $PWD/bin-real/$(basename $f) "\$@"
 EOF
     chmod +x $f
   done
