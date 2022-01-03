@@ -184,9 +184,9 @@ int main(int argc, char *argv[]) {
       break;
     case OPT_ONLY: {
         char *hdrs = optarg;
-        char *rest = 0;
+        char *rest = NULL;
         while (char *hdr = strtok_r(hdrs, " \t,", &rest)) {
-          hdrs = 0;
+          hdrs = NULL;
           OnlyHdrs.insert(RealPath(hdr));
         }
         break;
