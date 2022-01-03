@@ -61,5 +61,7 @@ bin/%.o: src/%.cc
 
 clean:
 	rm -rf bin/* build dist *.egg-info
+	find -name \*.gcov -o -name \*.gcno -o -name \*.gcda | xargs rm -rf
+	find -o -name .coverage -o -name \*.xml | xargs rm -rf
 
 .PHONY: check all install clean pylint

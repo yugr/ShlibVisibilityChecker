@@ -46,5 +46,4 @@ if test -n "${CODECOV_TOKEN:-}"; then
   done
   curl --retry 5 -s https://codecov.io/bash > codecov.bash
   bash codecov.bash -Z
-  find -name \*.gcda -o -name \*.gcno -o -name \*.gcov -o -name \*.xml | xargs rm
 fi
