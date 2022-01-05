@@ -1,0 +1,19 @@
+[MESSAGES CONTROL]
+
+disable = C0303, # trailing-whitespace in copyrights
+          C0103, # invalid-name for short variables
+          W0614, # unused-wildcard-import for 'from ... import ...'
+          W0603, # global-statement in error.py
+          W0511, # Do not abort on TODO/FIXME
+          W1514, # unspecified-encoding for default UTF-8
+          R0914, # too-many-locals
+          R0912, # too-many-branches
+          R0916, # too-many-boolean-expressions
+
+[FORMAT]
+
+indent-string = '  '
+
+[IMPORT]
+
+allow-wildcard-with-all = yes
