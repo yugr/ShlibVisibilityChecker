@@ -36,6 +36,16 @@ jobs:
         scripts/install-deps.sh
     - name: Run tests
       run: scripts/travis.sh
+  Pylint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      run: |
+        scripts/install-deps.sh
+        sudo apt-get install pylint
+    - name: Run tests
+      run: make pylint
   Asan:
     runs-on: ubuntu-latest
     env:
