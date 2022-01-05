@@ -22,7 +22,6 @@ def warn(msg):
 def error(msg):
   "Emit nicely-formatted error and abort"
   sys.stderr.write(f"{_me}: error: {msg}\n")
-  global _except
   if _except:
     raise RuntimeError
   sys.exit(1)
