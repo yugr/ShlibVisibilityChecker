@@ -3,7 +3,6 @@
 disable = trailing-whitespace,    # In copyrights
           invalid-name,           # Short variables like 'v'
           unused-wildcard-import, # For 'from ... import ...'
-          global-statement,       # In error.py
           fixme,                  # TODO/FIXME
           unspecified-encoding,   # Rely on default UTF-8
           too-many-locals, too-many-branches, too-many-boolean-expressions

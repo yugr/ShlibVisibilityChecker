@@ -28,10 +28,10 @@ def error(msg):
 
 def set_basename(name):
   "Set basename for error/warning reports"
-  global _me
+  global _me  # pylint: disable=global-statement
   _me = name
 
 def set_throw_on_error(v=True):
   "Set behavior on error"
-  global _except
+  global _except  # pylint: disable=global-statement
   _except = v
