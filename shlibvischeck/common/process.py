@@ -5,6 +5,10 @@
 # Use of this source code is governed by The MIT License (MIT)
 # that can be found in the LICENSE.txt file.
 
+"""
+APIs for handling processes
+"""
+
 import subprocess
 
 from shlibvischeck.common.error import error

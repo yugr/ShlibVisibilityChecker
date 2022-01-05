@@ -5,6 +5,10 @@
 # Use of this source code is governed by MIT license that can be
 # found in the LICENSE.txt file.
 
+"""
+APIs for analyzing ELF files
+"""
+
 import re
 import subprocess
 
