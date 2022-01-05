@@ -13,7 +13,7 @@ DESTDIR ?= /usr/local
 CXX ?= g++
 
 CXXFLAGS = $(shell $(LLVM_CONFIG) --cflags) -std=c++11 -g -Wall -Wextra -Werror
-LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags)
+LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags) -Wl,--warn-common
 
 ifneq (,$(COVERAGE))
   DEBUG = 1
