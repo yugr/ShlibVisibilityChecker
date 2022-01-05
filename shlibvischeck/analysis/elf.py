@@ -21,9 +21,9 @@ def readelf(filename):
   """ Returns symbol table of ELF file, """
 
   # --dyn-syms does not always work for some reason so dump all symtabs
-  p = subprocess.Popen(["readelf", "-sW", filename],
-                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  out, err = p.communicate()
+  with subprocess.Popen(["readelf", "-sW", filename],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p:
+    out, err = p.communicate()
   out = out.decode()
   err = err.decode()
   if p.returncode != 0 or err:

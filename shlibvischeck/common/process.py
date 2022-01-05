@@ -21,9 +21,9 @@ def run(cmd, fatal=True):
   if isinstance(cmd, str):
     cmd = cmd.split(' ')
 #  print(cmd)
-  p = subprocess.Popen(cmd, stdin=None, stdout=subprocess.PIPE,
-                       stderr=subprocess.PIPE)
-  out, err = p.communicate()
+  with subprocess.Popen(cmd, stdin=None, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE) as p:
+    out, err = p.communicate()
   out = out.decode()
   err = err.decode()
   if fatal and p.returncode != 0:

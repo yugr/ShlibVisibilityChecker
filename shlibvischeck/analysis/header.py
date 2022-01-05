@@ -27,11 +27,12 @@ def read_header_api(hdr, whitelist, cflags, v=0):
 
   # Is this a helper header and so not intended for direct inclusion?
   is_helper = 'private' in hdr  # E.g. json_object_private.h
-  for f in whitelist:
-    txt = open(f).read()
-    if re.search(r'^\s*#\s*include\s+[<"].*%s[>"]' % os.path.basename(hdr),
-                 txt, re.M):
-      is_helper = True
+  for filename in whitelist:
+    with open(filename) as f:
+      txt = f.read()
+      if re.search(r'^\s*#\s*include\s+[<"].*%s[>"]' % os.path.basename(hdr),
+                   txt, re.M):
+        is_helper = True
 
   errors = []
   syms = []
