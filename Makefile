@@ -8,7 +8,7 @@
 $(shell mkdir -p bin)
 
 LLVM_CONFIG ?= llvm-config
-DESTDIR ?= /usr/local/bin
+DESTDIR ?= /usr/local
 
 CXX ?= g++
 
@@ -45,7 +45,7 @@ all: bin/read_header_api
 
 install:
 	mkdir -p $(DESTDIR)
-	install bin/read_header_api $(DESTDIR)
+	install bin/read_header_api $(DESTDIR)/bin
 
 check:
 	shlibvischeck-debian libacl1
