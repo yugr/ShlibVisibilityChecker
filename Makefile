@@ -43,6 +43,7 @@ endif
 
 all: bin/read_header_api
 
+# TODO: install Python as well
 install:
 	mkdir -p $(DESTDIR)
 	install bin/read_header_api $(DESTDIR)/bin
