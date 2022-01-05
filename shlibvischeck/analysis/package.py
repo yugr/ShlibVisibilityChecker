@@ -25,7 +25,7 @@ def _get_paths(lang):
   """ Returns standard compiler paths. """
   p = _get_paths.cache.get(lang)
   if p is not None:
-      return p
+    return p
 #  cc = 'clang-5.0'
   cc = 'gcc'
   _, _, err = run(f'{cc} -E -v -x {lang} /dev/null')
