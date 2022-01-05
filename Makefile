@@ -7,10 +7,9 @@
 
 $(shell mkdir -p bin)
 
+CXX ?= g++
 LLVM_CONFIG ?= llvm-config
 DESTDIR ?= /usr/local
-
-CXX ?= g++
 
 CXXFLAGS = $(shell $(LLVM_CONFIG) --cflags) -std=c++11 -g -Wall -Wextra -Werror
 LDFLAGS = $(shell $(LLVM_CONFIG) --ldflags) -Wl,--warn-common
@@ -47,6 +46,7 @@ all: bin/read_header_api
 install:
 	mkdir -p $(DESTDIR)
 	install bin/read_header_api $(DESTDIR)/bin
+	install read_binary_api $(DESTDIR)/bin
 
 check:
 	shlibvischeck-debian libacl1
