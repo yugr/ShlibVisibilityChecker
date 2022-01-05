@@ -22,7 +22,7 @@ def run(cmd, fatal=True):
     cmd = cmd.split(' ')
 #  print(cmd)
   with subprocess.Popen(cmd, stdin=None, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE) as p:
+                        stderr=subprocess.PIPE) as p:
     out, err = p.communicate()
   out = out.decode()
   err = err.decode()
