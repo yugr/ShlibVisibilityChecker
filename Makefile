@@ -53,15 +53,20 @@ check:
 pylint:
 	pylint shlibvischeck
 
-bin/read_header_api: bin/read_header_api.o Makefile
+bin/read_header_api: bin/read_header_api.o Makefile bin/FLAGS
 	$(CXX) $(LDFLAGS) -o $@ $(filter %.o, $^) -lclang
 
-bin/%.o: src/%.cc Makefile
+bin/%.o: src/%.cc Makefile bin/FLAGS
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+bin/FLAGS: FORCE
+	if test x"$(CXXFLAGS) $(LDFLAGS)" != x"$$(cat $@)"; then \
+		echo "$(CXXFLAGS) $(LDFLAGS)" > $@; \
+	fi
 
 clean:
 	rm -rf bin/* build dist *.egg-info
 	find -name \*.gcov -o -name \*.gcno -o -name \*.gcda | xargs rm -rf
 	find -o -name .coverage -o -name \*.xml | xargs rm -rf
 
-.PHONY: check all install clean pylint
+.PHONY: check all install clean pylint FORCE
