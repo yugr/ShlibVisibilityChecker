@@ -12,11 +12,13 @@ set -x
 
 cd $(dirname $0)/..
 
+PYTHON=${PYTHON:-python3}
+
 # Build
 
 make "$@" clean all
-./setup.py build
-./setup.py bdist_wheel
+$PYTHON ./setup.py build
+$PYTHON ./setup.py bdist_wheel
 
 if test -n "${VALGRIND:-}"; then
   cp -r bin bin-real
