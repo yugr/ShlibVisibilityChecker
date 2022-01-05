@@ -53,11 +53,11 @@ check:
 pylint:
 	pylint shlibvischeck
 
-bin/read_header_api: bin/read_header_api.o
-	$(CXX) $(LDFLAGS) -o $@ $^ -lclang
+bin/read_header_api: bin/read_header_api.o Makefile
+	$(CXX) $(LDFLAGS) -o $@ $(filter %.o, $^) -lclang
 
-bin/%.o: src/%.cc
-	$(CXX) $(CXXFLAGS) -o $@ -c $^
+bin/%.o: src/%.cc Makefile
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 clean:
 	rm -rf bin/* build dist *.egg-info
