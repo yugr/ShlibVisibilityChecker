@@ -10,8 +10,9 @@
 set -eu
 set -x
 
-sudo apt-get -y install llvm libclang-dev python3 python3-setuptools python3-wheel aptitude
-sudo python3 -m pip install python-magic
+sudo apt-get -y install llvm libclang-dev python3 python3-pip aptitude
+sudo python3 -m pip install setuptools wheel python-magic
 
+# shlibvischeck-debian needs source repos
 sudo sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
 sudo apt-get update
