@@ -72,6 +72,8 @@ def _get_cflags(files, v=0):
     os.environ['PKG_CONFIG_PATH'] = os.path.dirname(pc)
     _, out, _ = run(f'pkg-config --print-errors --cflags {stem}')
     out = out.strip()  # Trailing \n
+    if v:
+      print(f'pkg-config output:\n{out}')
     if out:
       add_variants(out)
   # In case no .pc files are present
