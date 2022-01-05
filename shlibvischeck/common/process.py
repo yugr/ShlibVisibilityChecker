@@ -27,7 +27,7 @@ def run(cmd, fatal=True):
   out = out.decode()
   err = err.decode()
   if fatal and p.returncode != 0:
-    error("'%s' failed:\n%s%s" % (' '.join(cmd), out, err))
+    error(f"'{cmd}' failed:\n{out}{err}")
   return p.returncode, out, err
 
 def is_runnable(name):

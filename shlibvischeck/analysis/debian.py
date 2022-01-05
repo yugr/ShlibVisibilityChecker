@@ -32,7 +32,8 @@ def _get_installed_packages():
 def get_pkg_attribute(pkg, attr, src, last):
   """ Returns attribute of Debian package. """
   # Parse e.g. "Depends: libc6-dev | libc-dev, libacl1 (= 2.2.52-3), libattr1-dev (>= 1:2.4.46-8)"
-  _, out, _ = run('apt-cache -q %s %s' % ('showsrc' if src else 'show', pkg))
+  cmd = 'showsrc' if src else 'show'
+  _, out, _ = run(f'apt-cache -q {cmd} {pkg}')
   lines = list(filter(lambda l: l.startswith(attr + ':'), out.split('\n')))
   if last:
     lines = [lines[-1]]
@@ -47,7 +48,7 @@ def get_pkg_attribute(pkg, attr, src, last):
 def _get_pkg_files(pkg):
   """ Returns list of files that belong to a package. """
   # Avoid large files and dummy /.
-  _, out, _ = run('dpkg -L %s' % pkg)
+  _, out, _ = run(f'dpkg -L {pkg}')
   return list(filter(lambda f: not re.search(r'(\.gz|\.html?|\.)$', f),
                      out.split('\n')))
 
@@ -69,7 +70,7 @@ def _get_cflags(files, v=0):
   for pc in filter(lambda pkg: pkg.endswith('.pc'), files):
     stem, _ = os.path.splitext(os.path.basename(pc))
     os.environ['PKG_CONFIG_PATH'] = os.path.dirname(pc)
-    _, out, _ = run('pkg-config --print-errors --cflags %s' % stem)
+    _, out, _ = run(f'pkg-config --print-errors --cflags {stem}')
     out = out.strip()  # Trailing \n
     if out:
       add_variants(out)
@@ -84,7 +85,7 @@ def analyze_debian_package(pkg, permissive, v=0):
 
   for exe in ['aptitude', 'apt-cache', 'pkg-config']:
     if not is_runnable(exe):
-      error("'%s' not installed" % exe)
+      error(f"'{exe}' not installed")
 
   # Install all binary packages
   def is_good_package(p):
@@ -96,8 +97,8 @@ def analyze_debian_package(pkg, permissive, v=0):
   pkgs = list(filter(is_good_package, pkgs))
   dev_pkgs = list(filter(lambda p: p.endswith('-dev'), pkgs))
   if v > 0:
-    print("%s packages: %s" % (pkg, ' '.join(pkgs)))
-    print("%s dev packages: %s" % (pkg, ' '.join(dev_pkgs)))
+    print(f"{pkg} packages: {' '.join(pkgs)}")
+    print(f"{pkg} dev packages: {' '.join(dev_pkgs)}")
 
   installed_pkgs = _get_installed_packages()
 
@@ -105,12 +106,12 @@ def analyze_debian_package(pkg, permissive, v=0):
   for p in pkgs:  # Install single package at a time, in case some of them are missing
     if p in installed_pkgs:
       if v > 0:
-        print("Not installing package '%s' (already installed)" % p)
+        print(f"Not installing package '{p}' (already installed)")
     else:
       if v > 0:
-        print("Installing package '%s'..." % p)
+        print(f"Installing package '{p}'...")
       # Use Aptitude to automatically resolve conflicts.
-      run('sudo aptitude install -y -q=2 %s' % p)  # sudo apt-get install -qq -y $p
+      run(f'sudo aptitude install -y -q=2 {p}')  # sudo apt-get install -qq -y $p
     files += _get_pkg_files(p)
 
   # TODO: use dedicated flags for files from each package
@@ -118,9 +119,9 @@ def analyze_debian_package(pkg, permissive, v=0):
 
   spurious_syms = analyze_package(pkg, files, cflags, permissive, v)
   if spurious_syms:
-    print("The following exported symbols in package '%s' are private:\n  %s"
-          % (pkg, '\n  '.join(spurious_syms)))
+    print(f"The following exported symbols in package '{pkg}' are private:\n  "
+          + '\n  '.join(spurious_syms))
   else:
-    print("No private exports in package '%s'" % pkg)
+    print(f"No private exports in package '{pkg}'")
 
   return True

@@ -28,7 +28,7 @@ def _get_paths(lang):
       return p
 #  cc = 'clang-5.0'
   cc = 'gcc'
-  _, _, err = run('%s -E -v -x %s /dev/null' % (cc, lang))
+  _, _, err = run(f'{cc} -E -v -x {lang} /dev/null')
   in_paths = False
   paths = []
   for l in err.split('\n'):
@@ -70,8 +70,8 @@ def analyze_package(pkg, files, cflags, permissive, v=0):
     error("failed to locate any shared libs")
 
   if v > 0:
-    print("Package headers: %s" % ' '.join(hdrs))
-    print("Package shlibs: %s" % ' '.join(shlibs))
+    print(f"Package headers: {' '.join(hdrs)}")
+    print(f"Package shlibs: {' '.join(hdrs)}")
 
   # Need to add std paths
   c_paths = _get_paths('c')

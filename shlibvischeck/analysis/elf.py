@@ -27,7 +27,7 @@ def readelf(filename):
   out = out.decode()
   err = err.decode()
   if p.returncode != 0 or err:
-    error("readelf failed with retcode %d: %s" % (p.returncode, err))
+    error(f"readelf failed with retcode {p.returncode}: {err}")
 
   toc = None
   syms = []
@@ -60,7 +60,7 @@ def readelf(filename):
       syms.append(sym)
 
   if toc is None:
-    error("failed to analyze %s" % filename)
+    error(f"failed to analyze {filename}")
 
   return syms
 

@@ -27,11 +27,11 @@ def read_header_api(hdr, whitelist, cflags, v=0):
 
   # Is this a helper header and so not intended for direct inclusion?
   is_helper = 'private' in hdr  # E.g. json_object_private.h
+  hdr_base = os.path.basename(hdr)
   for filename in whitelist:
     with open(filename) as f:
       txt = f.read()
-      if re.search(r'^\s*#\s*include\s+[<"].*%s[>"]' % os.path.basename(hdr),
-                   txt, re.M):
+      if re.search(fr'^\s*#\s*include\s+[<"].*{hdr_base}[>"]', txt, re.M):
         is_helper = True
 
   errors = []
@@ -48,7 +48,7 @@ def read_header_api(hdr, whitelist, cflags, v=0):
   if not syms and not is_helper:
     msgs = ["failed to parse:"]
     for cmd, out, err in errors:
-      msgs.append("compiling '%s':" % cmd)
+      msgs.append(f"compiling '{cmd}':")
       msgs.append(err)
     error('\n'.join(msgs))
 

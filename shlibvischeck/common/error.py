@@ -17,11 +17,11 @@ _me = os.path.basename(sys.argv[0])
 
 def warn(msg):
   "Emit nicely-formatted warning"
-  sys.stderr.write("%s: warning: %s\n" % (_me, msg))
+  sys.stderr.write(f"{_me}: warning: {msg}\n")
 
 def error(msg):
   "Emit nicely-formatted error and abort"
-  sys.stderr.write("%s: error: %s\n" % (_me, msg))
+  sys.stderr.write(f"{_me}: error: {msg}\n")
   global _except
   if _except:
     raise RuntimeError
