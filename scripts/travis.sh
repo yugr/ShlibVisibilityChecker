@@ -20,6 +20,10 @@ make "$@" clean all
 $PYTHON ./setup.py build
 $PYTHON ./setup.py bdist_wheel
 
+# Run tests
+
+export ASAN_OPTIONS='detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:strict_string_checks=1'
+
 if test -n "${VALGRIND:-}"; then
   cp -r bin bin-real
   for f in $(find bin -type f -a -executable); do
@@ -31,21 +35,22 @@ EOF
   done
 fi
 
-export ASAN_OPTIONS='detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:strict_string_checks=1'
+make check
 
-# Run tests
+# Collect coverage
 
-test/basic/run.sh
-test/debian/run.sh
-test/only/run.sh
-
-# Upload coverage
 if test -n "${COVERAGE:-}"; then
+  # C++ coverage
+  mv bin/*.gc[dn][ao] src
+  gcov src/*.gcno
+  # Python coverage
+  # TODO: why it's not collected?
   for t in tests/*; do
     if test -d $t; then
-      (cd $t && coverage xml)
+      (cd $t && coverage xml && gcov)
     fi
   done
+  # Upload coverage
   curl --retry 5 -s https://codecov.io/bash > codecov.bash
-  bash codecov.bash -Z
+  bash codecov.bash -Z -X gcov
 fi

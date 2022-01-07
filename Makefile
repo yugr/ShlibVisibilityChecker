@@ -49,7 +49,9 @@ install:
 	install read_binary_api $(DESTDIR)/bin
 
 check:
-	shlibvischeck-debian libacl1
+	test/basic/run.sh
+	test/debian/run.sh
+	test/only/run.sh
 
 pylint:
 	pylint shlibvischeck
@@ -62,7 +64,7 @@ bin/%.o: src/%.cc Makefile bin/FLAGS
 
 bin/FLAGS: FORCE
 	if test x"$(CXXFLAGS) $(LDFLAGS)" != x"$$(cat $@)"; then \
-		echo "$(CXXFLAGS) $(LDFLAGS)" > $@; \
+	  echo "$(CXXFLAGS) $(LDFLAGS)" > $@; \
 	fi
 
 clean:

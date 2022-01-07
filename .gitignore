@@ -18,3 +18,8 @@ api_abi.diff
 *.so
 codecov.bash
 out.log
+*.gcov
+.coverage
+*.gcda
+*.gcno
+coverage.xml
