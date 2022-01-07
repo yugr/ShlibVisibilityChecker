@@ -49,9 +49,9 @@ install:
 	install read_binary_api $(DESTDIR)/bin
 
 check:
-	test/basic/run.sh
-	test/debian/run.sh
-	test/only/run.sh
+	tests/basic/run.sh
+	tests/debian/run.sh
+	tests/only/run.sh
 
 pylint:
 	pylint shlibvischeck
