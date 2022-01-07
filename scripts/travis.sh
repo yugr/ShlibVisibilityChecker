@@ -40,7 +40,7 @@ test/debian/run.sh
 test/only/run.sh
 
 # Upload coverage
-if test -n "${CODECOV_TOKEN:-}"; then
+if test -n "${COVERAGE:-}"; then
   for t in tests/*; do
     if test -d $t; then
       (cd $t && coverage xml)
