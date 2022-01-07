@@ -43,10 +43,7 @@ if test -n "${COVERAGE:-}"; then
   # C++ coverage
   mv bin/*.gc[dn][ao] src
   gcov src/*.gcno
-  # TODO: Python coverage
-#  for t in tests/*; do
-#    ! test -d $t || (cd $t && coverage xml)
-#  done
+  # Python coverage will be collected by codecov.bash
   # Upload coverage
   curl --retry 5 -s https://codecov.io/bash > codecov.bash
   bash codecov.bash -Z -X gcov

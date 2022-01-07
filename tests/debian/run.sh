@@ -29,7 +29,7 @@ PKGS=libbz2-1.0
 
 errors=0
 for pkg in $PKGS; do
-  (cd $ROOT && ${PYTHON:-python3} ./shlibvischeck-debian --permissive $pkg) > out.log
+  ${PYTHON:-python3} $ROOT/shlibvischeck-debian --permissive $pkg > out.log
 
   if ! diff -q $pkg.ref out.log; then
     echo >&2 "Invalid results for package"
