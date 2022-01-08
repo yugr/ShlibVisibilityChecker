@@ -1,7 +1,5 @@
 # TODO:
 # * proper deploy (with dependencies, etc.)
-# * more tests (70% coverage)
-# * add Python coverage
 
 name: CI
 on:
