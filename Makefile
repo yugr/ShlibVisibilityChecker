@@ -63,8 +63,8 @@ bin/%.o: src/%.cc Makefile bin/FLAGS
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 bin/FLAGS: FORCE
-	if test x"$(CXXFLAGS) $(LDFLAGS)" != x"$$(cat $@)"; then \
-	  echo "$(CXXFLAGS) $(LDFLAGS)" > $@; \
+	if test x"$(CFLAGS) $(CXXFLAGS) $(LDFLAGS)" != x"$$(cat $@)"; then \
+	  echo "$(CFLAGS) $(CXXFLAGS) $(LDFLAGS)" > $@; \
 	fi
 
 clean:
