@@ -44,6 +44,18 @@ jobs:
         sudo apt-get install pylint
     - name: Run tests
       run: make pylint
+  CSA:
+    runs-on: ubuntu-latest
+    env:
+      CXX: clang
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      run: |
+        scripts/install-deps.sh
+        sudo apt-get install clang-tools
+    - name: Run tests
+      run: scan-build --keep-going --status-bugs scripts/travis.sh
   Asan:
     runs-on: ubuntu-latest
     env:
