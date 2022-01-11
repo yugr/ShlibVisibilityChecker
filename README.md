@@ -14,7 +14,9 @@ Such symbols are undesirable because they cause
   to optimize exportable functions e.g. inline them, effective turnoff of `--gc-sections`)
 * leak of implementation details
   (if some clients start to use private functions instead of regular APIs)
-* bugs due to runtime symbol clashing (see [Flameeyes blog](https://flameeyes.blog/2008/02/09/flex-and-linking-conflicts-or-a-possible-reason-why-php-and-recode-are-so-crashy/) for real-world examples)
+* bugs due to runtime symbol clashing
+  - [crash in Apache due to symbol clash with libasn1](https://github.com/DCIT/perl-CryptX/issues/68)
+  - more real-world examples in [Flameeyes blog](https://flameeyes.blog/2008/02/09/flex-and-linking-conflicts-or-a-possible-reason-why-php-and-recode-are-so-crashy/)
 
 ShlibVisibilityChecker compares APIs declared in public headers
 against APIs exported from shared libraries and warns about discrepancies.
