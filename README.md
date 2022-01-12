@@ -109,6 +109,18 @@ $ curl https://popcon.debian.org/by_vote | awk '/^[0-9]+ +lib/{print $2}' > by_v
 $ shlibvischeck-debian $(head -500 by_vote | tr '\n' ' ')
 ```
 
+# How to fix a package
+
+Once you found a problematic package, you can fix it by restricting visibility of internal symbols.
+The best way to control symbol visibility in a package is to
+* hide all symbols by default by adding `-fvisibility=hidden` to `CFLAGS` in project buildscripts
+  (`Makefile.in` or `CMakeLists.txt`)
+* explicitly annotate publicly visible functions with
+  `__attribute__((visibility("default")))`
+
+See [fix in libcaca](https://github.com/cacalabs/libcaca/pull/34/files)
+for example.
+
 # Issues and limitations
 
 At the moment tool works only on Debian-based systems (e.g. Ubuntu).
