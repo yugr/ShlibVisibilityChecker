@@ -1,25 +1,25 @@
 /*
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2018-2022 Yury Gribov
- * 
+ *
  * Use of this source code is governed by The MIT License (MIT)
  * that can be found in the LICENSE.txt file.
  */
 
 #include <clang-c/Index.h>
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include <libgen.h>
 #include <getopt.h>
+#include <libgen.h>
 #include <unistd.h>
 
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 struct Symbol {
   std::string Name, MangledName;
@@ -31,8 +31,9 @@ struct InterfaceInfo {
   const std::set<std::string> OnlyHdrs;
   std::vector<Symbol> Syms;
   bool HasClasses;
-  InterfaceInfo(int Verbose, const std::string &Root, const std::set<std::string> &OnlyHdrs)
-    : Verbose(Verbose), Root(Root), OnlyHdrs(OnlyHdrs), HasClasses(false) {}
+  InterfaceInfo(int Verbose, const std::string &Root,
+                const std::set<std::string> &OnlyHdrs)
+      : Verbose(Verbose), Root(Root), OnlyHdrs(OnlyHdrs), HasClasses(false) {}
 };
 
 static std::string ToStr(CXString CXS) {
@@ -53,9 +54,11 @@ static std::string RealPath(const char *p) {
   return Res;
 }
 
-static std::string ParseLoc(CXSourceLocation Loc, unsigned *Line, bool Expansion) {
+static std::string ParseLoc(CXSourceLocation Loc, unsigned *Line,
+                            bool Expansion) {
   CXFile F;
-  (Expansion ? clang_getExpansionLocation : clang_getSpellingLocation)(Loc, &F, Line, 0, 0);
+  (Expansion ? clang_getExpansionLocation
+             : clang_getSpellingLocation)(Loc, &F, Line, 0, 0);
   return RealPath(ToStr(clang_getFileName(F)).c_str());
 }
 
@@ -63,7 +66,8 @@ static bool IsUnderRoot(const std::string &Filename, const std::string &Root) {
   return 0 == Filename.compare(0, Root.size(), Root);
 }
 
-static enum CXChildVisitResult collectDecls(CXCursor C, CXCursor Parent, CXClientData Data) {
+static enum CXChildVisitResult collectDecls(CXCursor C, CXCursor Parent,
+                                            CXClientData Data) {
   (void)Parent;
   InterfaceInfo *Info = (InterfaceInfo *)Data;
 
@@ -86,7 +90,8 @@ static enum CXChildVisitResult collectDecls(CXCursor C, CXCursor Parent, CXClien
     return CXChildVisit_Continue;
   } else if (!Info->OnlyHdrs.empty() && !Info->OnlyHdrs.count(SpellFilename)) {
     if (Info->Verbose)
-      fprintf(stderr, "note: skipping declaration at %s:%u (not in list of headers)\n",
+      fprintf(stderr,
+              "note: skipping declaration at %s:%u (not in list of headers)\n",
               SpellFilename.c_str(), Line);
     return CXChildVisit_Continue;
   }
@@ -103,14 +108,14 @@ static enum CXChildVisitResult collectDecls(CXCursor C, CXCursor Parent, CXClien
   case CXCursor_Constructor:
   case CXCursor_Destructor:
   case CXCursor_VarDecl: {
-      std::string Name = ToStr(clang_getCursorSpelling(C)),
-        MangledName = ToStr(clang_Cursor_getMangling(C));
-      if (Info->Verbose)
-        fprintf(stderr, "note: found symbol %s (expanded in %s, spelled in %s)\n",
-                Name.c_str(), ExpFilename.c_str(), SpellFilename.c_str());
-      Info->Syms.push_back({Name, MangledName});
-      break;
-    }
+    std::string Name = ToStr(clang_getCursorSpelling(C)),
+                MangledName = ToStr(clang_Cursor_getMangling(C));
+    if (Info->Verbose)
+      fprintf(stderr, "note: found symbol %s (expanded in %s, spelled in %s)\n",
+              Name.c_str(), ExpFilename.c_str(), SpellFilename.c_str());
+    Info->Syms.push_back({Name, MangledName});
+    break;
+  }
   case CXCursor_ClassDecl:
     Info->HasClasses = true;
     return CXChildVisit_Recurse;
@@ -136,7 +141,8 @@ Options:\n\
                              in files under ROOT.\n\
   --only A.H,B.H,...         Report only functions in these headers.\n\
   --only-args                Report only functions in HDRs\n\
-", prog);
+",
+         prog);
   exit(0);
 }
 
@@ -149,14 +155,14 @@ int main(int argc, char *argv[]) {
   bool OnlyArgs = false;
   while (1) {
     static struct option long_opts[] = {
-      {"verbose", no_argument, 0, 'v'},
-      {"cflags", required_argument, 0, 'c'},
-      {"root", required_argument, 0, 'r'},
-      {"help", required_argument, 0, 'h'},
-#     define OPT_ONLY 1
-      {"only", required_argument, 0, OPT_ONLY},
-#     define OPT_ONLY_ARGS 2
-      {"only-args", no_argument, 0, OPT_ONLY_ARGS},
+        {"verbose", no_argument, 0, 'v'},
+        {"cflags", required_argument, 0, 'c'},
+        {"root", required_argument, 0, 'r'},
+        {"help", required_argument, 0, 'h'},
+#define OPT_ONLY 1
+        {"only", required_argument, 0, OPT_ONLY},
+#define OPT_ONLY_ARGS 2
+        {"only-args", no_argument, 0, OPT_ONLY_ARGS},
     };
 
     int opt_index = 0;
@@ -173,7 +179,7 @@ int main(int argc, char *argv[]) {
       Flags = optarg;
       break;
     case 'r':
-      if (access (optarg, F_OK) == -1) {
+      if (access(optarg, F_OK) == -1) {
         fprintf(stderr, "Directory %s does not exist\n", optarg);
         exit(1);
       }
@@ -183,14 +189,14 @@ int main(int argc, char *argv[]) {
       usage(me);
       break;
     case OPT_ONLY: {
-        char *hdrs = optarg;
-        char *rest = NULL;
-        while (char *hdr = strtok_r(hdrs, " \t,", &rest)) {
-          hdrs = NULL;
-          OnlyHdrs.insert(RealPath(hdr));
-        }
-        break;
+      char *hdrs = optarg;
+      char *rest = NULL;
+      while (char *hdr = strtok_r(hdrs, " \t,", &rest)) {
+        hdrs = NULL;
+        OnlyHdrs.insert(RealPath(hdr));
       }
+      break;
+    }
     case OPT_ONLY_ARGS:
       OnlyArgs = true;
       OnlyHdrs.clear();
@@ -201,7 +207,7 @@ int main(int argc, char *argv[]) {
   }
 
   std::vector<const char *> FlagsArray;
-  for (size_t End = 0; End < std::string::npos; ) {
+  for (size_t End = 0; End < std::string::npos;) {
     size_t Begin = Flags.find_first_not_of(" \t", End);
     if (Begin == std::string::npos)
       break;
@@ -227,8 +233,8 @@ int main(int argc, char *argv[]) {
 
     CXIndex Idx = clang_createIndex(0, 0);
     CXTranslationUnit Unit = clang_parseTranslationUnit(
-      Idx, Hdr.c_str(), FlagsArray.empty() ? 0 : &FlagsArray[0],
-      FlagsArray.size(), 0, 0, CXTranslationUnit_None);
+        Idx, Hdr.c_str(), FlagsArray.empty() ? 0 : &FlagsArray[0],
+        FlagsArray.size(), 0, 0, CXTranslationUnit_None);
     if (!Unit) {
       fprintf(stderr, "error: failed to read file %s\n", Hdr.c_str());
       exit(1);
@@ -240,7 +246,8 @@ int main(int argc, char *argv[]) {
       clang_disposeDiagnostic(D);
       CXDiagnosticSeverity S = clang_getDiagnosticSeverity(D);
       if (S >= CXDiagnostic_Error || (S >= CXDiagnostic_Warning && Verbose)) {
-        std::string Msg = ToStr(clang_formatDiagnostic(D, clang_defaultDiagnosticDisplayOptions()));
+        std::string Msg = ToStr(
+            clang_formatDiagnostic(D, clang_defaultDiagnosticDisplayOptions()));
         fprintf(stderr, "%s\n", Msg.c_str());
       }
       AnyError |= S >= CXDiagnostic_Error;
@@ -253,21 +260,25 @@ int main(int argc, char *argv[]) {
     if (HdrRoot.empty()) {
       size_t J = Hdr.find("/include/");
       if (J == std::string::npos)
-        fprintf(stderr, "Failed to determine include root for %s\n", Hdr.c_str());
+        fprintf(stderr, "Failed to determine include root for %s\n",
+                Hdr.c_str());
       else
         HdrRoot = Hdr.substr(0, J) + "/include";
     }
 
     InterfaceInfo Info(Verbose, HdrRoot, OnlyHdrs);
-    clang_visitChildren(clang_getTranslationUnitCursor(Unit), collectDecls, (CXClientData)&Info);
+    clang_visitChildren(clang_getTranslationUnitCursor(Unit), collectDecls,
+                        (CXClientData)&Info);
 
     if (Info.HasClasses)
-      fprintf(stderr, "warning: C++ is not fully supported, interface info may be incomplete\n");
+      fprintf(stderr, "warning: C++ is not fully supported, interface info may "
+                      "be incomplete\n");
 
     if (Verbose) {
       fprintf(stderr, "APIs exported from %s:\n", Hdr.c_str());
       for (auto &Sym : Info.Syms) {
-        fprintf(stderr, "  %s (%s)\n", Sym.MangledName.c_str(), Sym.Name.c_str());
+        fprintf(stderr, "  %s (%s)\n", Sym.MangledName.c_str(),
+                Sym.Name.c_str());
       }
     }
 
