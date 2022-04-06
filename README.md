@@ -9,7 +9,7 @@
 ShlibVisibilityChecker is a small tool which locates internal symbols
 that are unnecessarily exported from shared libraries.
 Such symbols are undesirable because they cause
-* slower startup time (due to [slower relocation processing by dynamic linker](https://lwn.net/Articles/341309/))
+* slower startup time (due to [slower relocation processing by dynamic linker](https://lwn.net/Articles/341309/), see a [real-world example](https://lore.kernel.org/lkml/CAKwvOdk0nxxUATg2jEKgx4HutXCMXcW92SX3DT+uCTgqBwQHBg@mail.gmail.com/) for Linux kernel)
 * performance slowdown (due to indirect function calls, compiler's inability
   to optimize exportable functions e.g. inline them, effective turnoff of `--gc-sections`)
 * leak of implementation details
