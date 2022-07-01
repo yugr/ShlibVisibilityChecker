@@ -14,6 +14,8 @@ PYTHON=${PYTHON:-python3}
 
 sudo apt-get -y install llvm libclang-dev $PYTHON aptitude
 sudo apt-get -y install $PYTHON-pip || true
+# distutils is needed by pip
+sudo apt-get -y install $PYTHON-distutils || true
 sudo $PYTHON -m pip install setuptools wheel python-magic
 
 # shlibvischeck-debian needs source repos
