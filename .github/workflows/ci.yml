@@ -21,6 +21,9 @@ jobs:
         os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04, ubuntu-latest]
         cxx: [g++, clang++]
         py: [python3.6, python3.7, python3]
+        exclude:
+          - os: ubuntu-22.04
+            py: python3.6
     runs-on: ${{ matrix.os }}
     env:
       CXX: ${{ matrix.cxx }}
