@@ -77,10 +77,10 @@ $ shlibvischeck-common --permissive --cflags="-I/usr/include -I$AUDIT_INSTALL/in
 
 Build-time prerequisites are `python3` (`setuptools` module), `clang`,
 `llvm`, `libclang-dev`, `g++` and `make`.
-Run-time dependencies are `python3` (`python-magic` module) and `aptitude`.
+Run-time dependencies are `python3` (`python-magic` module), `pkg-config` and `aptitude`.
 To install everything on Ubuntu, run
 ```
-$ sudo apt-get install python3 clang llvm libclang-dev g++ make aptitude
+$ sudo apt-get install python3 clang llvm libclang-dev g++ make pkg-config aptitude
 $ sudo python3 -mensurepip
 $ sudo pip3 install setuptools python-magic
 ```
