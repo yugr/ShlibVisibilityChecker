@@ -19,5 +19,5 @@ sudo apt-get -y install $PYTHON-distutils || true
 sudo $PYTHON -m pip install setuptools wheel python-magic
 
 # shlibvischeck-debian needs source repos
-sudo sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
+sudo sed -Ei 's/^# *deb-src /deb-src /' /etc/apt/sources.list
 sudo apt-get update

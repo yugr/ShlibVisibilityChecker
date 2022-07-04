@@ -88,7 +88,7 @@ $ sudo pip3 install setuptools python-magic
 
 You also need to enable access to Ubuntu source packages via
 ```
-$ sudo sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
+$ sudo sed -Ei 's/^# *deb-src /deb-src /' /etc/apt/sources.list
 $ sudo apt-get update
 ```
 
