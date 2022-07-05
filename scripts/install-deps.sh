@@ -12,7 +12,7 @@ set -x
 
 PYTHON=${PYTHON:-python3}
 
-sudo apt-get -y install llvm libclang-dev $PYTHON aptitude
+sudo apt-get -y install llvm libclang-dev $PYTHON pkg-config aptitude
 sudo apt-get -y install $PYTHON-pip || true
 # distutils is needed by pip
 sudo apt-get -y install $PYTHON-distutils || true
