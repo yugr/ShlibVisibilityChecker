@@ -43,7 +43,7 @@ def get_pkg_attribute(pkg, attr, src, last):
     l = re.sub(r'\([^)]*\)', '', l)
     l = l.strip()
     vals += re.split(r' *, *', l)
-  return sorted(vals)
+  return sorted(v for v in vals if v)
 
 def _get_pkg_files(pkg):
   """ Returns list of files that belong to a package. """

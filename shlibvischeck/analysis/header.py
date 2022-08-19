@@ -29,7 +29,7 @@ def read_header_api(hdr, whitelist, cflags, v=0):
   is_helper = 'private' in hdr  # E.g. json_object_private.h
   hdr_base = os.path.basename(hdr)
   for filename in whitelist:
-    with open(filename) as f:
+    with open(filename, errors='ignore') as f:
       txt = f.read()
       if re.search(fr'^\s*#\s*include\s+[<"].*{hdr_base}[>"]', txt, re.M):
         is_helper = True
