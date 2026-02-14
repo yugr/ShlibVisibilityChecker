@@ -91,9 +91,7 @@ def analyze_debian_package(pkg, permissive, v=0):
 
   # Install all binary packages
   def is_good_package(p):
-    return (not p.endswith('-udeb')
-            and not p.endswith('-doc')
-            and not p.endswith('-dbg')
+    return (not p.endswith(('-udeb', '-doc', '-dbg'))
             and 'mingw-w64' not in p)
   pkgs = get_pkg_attribute(pkg, 'Binary', True, True)
   pkgs = list(filter(is_good_package, pkgs))
