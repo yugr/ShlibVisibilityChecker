@@ -19,7 +19,7 @@ sudo apt-get -y install $PYTHON-distutils || true
 sudo $PYTHON -m pip install setuptools wheel python-magic
 
 # shlibvischeck-debian needs source repos
-MAJOR=$(source /etc/lsb-release && echo $DISTRIB_RELEASE | awk -F. '{print $1}')
+MAJOR=$(. /etc/lsb-release && echo $DISTRIB_RELEASE | awk -F. '{print $1}')
 if test $MAJOR -lt 24; then
   sudo sed -Ei 's/^# *deb-src /deb-src /' /etc/apt/sources.list
 else
