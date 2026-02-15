@@ -23,7 +23,9 @@ jobs:
         py: [python3.7, python3]
         exclude:
           # Python 3.7 setuptools broken on 24.04
-          - os: [ubuntu-24.04, ubuntu-latest]
+          - os: ubuntu-24.04
+            py: python3.7
+          - os: ubuntu-latest
             py: python3.7
     runs-on: ${{ matrix.os }}
     env:
